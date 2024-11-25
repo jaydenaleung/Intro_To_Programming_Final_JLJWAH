@@ -3,10 +3,16 @@ import pygame
 
 class Entity:
     def __init__(self,x,y,imagePath,speed):
+        self.image = pygame.image.load(imagePath)
+        self.sizex = self.image.get_size()[0]
+        self.sizey = self.image.get_size()[1]
+
         self.x = x
         self.y = y
-        self.image = pygame.image.load(imagePath)
+        # self.farx = self.x + self.sizex
+        # self.fary = self.y + self.sizey        
         self.speed = speed
+
         self.movingLeft = False
         self.movingRight = False
         self.movingUp = False
