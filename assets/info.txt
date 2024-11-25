@@ -1,0 +1,16 @@
+Battlefields considered (max 3):
+•	Battlefield
+•	Pokemon Stadium 1
+•	Final Destination
+•	Fountain of Dreams
+•	Boxing RIng
+•	Temple
+•	Luigi’s Mansion
+
+Resources:
+•	https://www.spriters-resource.com/nintendo_switch/supersmashbrosultimate/
+•	https://www.smashbros.com/en_US/stage/index.html
+•	https://www.ssbwiki.com/Stage
+
+Attributes:
+•	For files in ‘battlegrounds’ and ‘characters’ - TV_Toshi @ https://www.reddit.com/r/smashbros/comments/f1iz5c/a_complete_hq_image_collection_of_all_smash/
