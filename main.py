@@ -13,20 +13,28 @@ icon = pygame.image.load("assets\icon.png")
 pygame.display.set_caption(title)
 pygame.display.set_icon(icon) # https://www.flaticon.com/free-icon-font/browser_3914451?page=1&position=1&term=programming&origin=search&related_id=3914451
 
-# Background
+# Setup
 background = "white"
 
-# CLASS OBJECTS (CHARACTERS)
+# CLASS OBJECTS
 player = classes.Player(300,300,"assets\example_player.png")
 
-# EXAMPLE CODE FOR SCENE (WILL REMOVE LATER)
-example_background = pygame.image.load("assets\example_battlefield.png")
-# Top Platform: (550,102),(733,124) - topleft,bottomRight
+scene = classes.Scene("assets\example_battlefield.png")
+barrierT = scene.Barrier(550,102,733,124)
+barrierL = scene.Barrier(340,218,528,238)
+barrierR = scene.Barrier(756,218,944,237)
+barrierM1 = scene.Barrier(252,355,1016,412)
+barrierM2 = scene.Barrier(311,317,913,458)
+barrierM3 = scene.Barrier(375,461,890,484)
+barrierM4 = scene.Barrier(435,494,772,546)
+barrierM5 = scene.Barrier(522,555,711,657)
+barriers = [barrierT,barrierL,barrierR,barrierM1,barrierM2,barrierM3,barrierM4,barrierM5]
+
 
 while running:
     # SETUP
     screen.fill(background)
-    screen.blit(example_background,(0,0))
+    scene.update(screen)
 
 
     # WATCH FOR EVENTS HERE (CONDITIONALS SECTION)
@@ -54,32 +62,15 @@ while running:
         
         if event.type == pygame.MOUSEBUTTONUP:
             print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
-
     
-    if player.movingLeft and player.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
-        if (not (player.x > 550 and player.x < 733 and player.y > 102-player.sizey and player.y < 124)): # Top platform/example
-            player.x -= player.speed
-            if player.x > 550 and player.x <= 733 and player.y > 102-player.sizey and player.y < 124:
-                player.x = 733
-    if player.movingRight and player.x + player.sizex <= resX: # playerImg.get_size()[0] gets the horizontal size of the player
-        if (not (player.x + player.sizex > 550 and player.x < 733 and player.y > 102-player.sizey and player.y < 124)):
-            player.x += player.speed
-            if player.x < 733 and player.x + player.sizex >= 550 and player.y > 102-player.sizey and player.y < 124:
-                player.x = 550-player.sizex
-    if player.movingUp and player.y >= 0:
-        if (not (player.y > 102 and player.y < 124 and player.x > 550-player.sizex and player.x < 733)):
-            player.y -= player.speed
-            if player.y <= 124 and player.y > 102 and player.x > 550-player.sizex and player.x < 733:
-                player.y = 125
-    if player.movingDown and player.y + player.sizey <= resY:
-        if (not (player.y + player.sizey > 102 and player.y < 124 and player.x > 550-player.sizex and player.x < 733)):
-            player.y += player.speed
-            if player.y < 124 and player.y + player.sizey >= 102 and player.x > 550-player.sizex and player.x < 733:
-                player.y = 101-player.sizey
+    # for barrier in barriers:
+    #     barrier.solidify(player,resX,resY)
+    barrierT.solidify(player,resX,resY)
 
 
-    # RENDER GAME OBJECTS HERE 
+    # RENDER GAME OBJECTS HERE
     player.update(screen)
+
 
     # UPDATE SCREEN
     pygame.display.flip()
