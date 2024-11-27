@@ -1,5 +1,12 @@
 import pygame
 import classes
+import functions
+
+'''
+RUN THE PROGRAM HERE. Main file which connects and compiles all the different frameworks and mechanics. Enjoy!
+
+- Joza, Amie, Jayden: Intro to Programming Fall 2024
+'''
 
 # Start Pygame
 pygame.init()
@@ -8,7 +15,7 @@ screen = pygame.display.set_mode((resX, resY))
 clock = pygame.time.Clock()
 running = True
 
-title = "Super Smash Bros. by Intro To Programming Fall 2024"
+title = "Super Smash Bros. X (ITP 2024)"
 icon = pygame.image.load("assets\icon.png")
 pygame.display.set_caption(title)
 pygame.display.set_icon(icon) # https://www.flaticon.com/free-icon-font/browser_3914451?page=1&position=1&term=programming&origin=search&related_id=3914451
@@ -17,18 +24,21 @@ pygame.display.set_icon(icon) # https://www.flaticon.com/free-icon-font/browser_
 background = "white"
 
 # CLASS OBJECTS
-player = classes.Player(300,300,"assets\example_player.png")
+spawnX1 = 380; spawnY1 = 294; spawnX2 = 805; spawnY2 = 294
+player = classes.Player(spawnX1,spawnY1,"assets\example_char.png")
+enemy = classes.Player(spawnX2,spawnY2,"assets\example_enemy.png")
+characters = [player,enemy]
 
 scene = classes.Scene("assets\example_battlefield.png")
 barrierT = scene.Barrier(550,102,733,124)
 barrierL = scene.Barrier(340,218,528,238)
 barrierR = scene.Barrier(756,218,944,237)
 barrierM1 = scene.Barrier(252,355,1016,412)
-barrierM2 = scene.Barrier(311,317,913,458)
+#barrierM2 = scene.Barrier(311,317,913,458)
 barrierM3 = scene.Barrier(375,461,890,484)
 barrierM4 = scene.Barrier(435,494,772,546)
-barrierM5 = scene.Barrier(522,555,711,657)
-barriers = [barrierT,barrierL,barrierR,barrierM1,barrierM2,barrierM3,barrierM4,barrierM5]
+barrierM5 = scene.Barrier(587,555,711,657)
+barriers = [barrierT,barrierL,barrierR,barrierM1,barrierM3,barrierM4,barrierM5]
 
 
 while running:
@@ -39,37 +49,16 @@ while running:
 
     # WATCH FOR EVENTS HERE (CONDITIONALS SECTION)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-        if event.type == pygame.KEYDOWN: # WASD / arrow keys
-            if event.key == pygame.K_LEFT or event.key == pygame.K_a: # move left
-                player.movingLeft = True
-
-            if event.key == pygame.K_RIGHT or event.key == pygame.K_d: # move right
-                player.movingRight = True
-            
-            if event.key == pygame.K_UP or event.key == pygame.K_w: # move up
-                player.movingUp = True
-            
-            if event.key == pygame.K_DOWN or event.key == pygame.K_s: # move down
-                player.movingDown = True
-        elif event.type == pygame.KEYUP:
-            player.movingLeft = False
-            player.movingRight = False
-            player.movingUp = False
-            player.movingDown = False
-        
-        if event.type == pygame.MOUSEBUTTONUP:
-            print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
+        running = functions.quitCheck(event,running)
+        functions.moveCheck(event,characters)
     
-    # for barrier in barriers:
-    #     barrier.solidify(player,resX,resY)
-    barrierT.solidify(player,resX,resY)
+    for character in characters:
+        for barrier in barriers:
+            barrier.solidify(screen,character)
 
 
     # RENDER GAME OBJECTS HERE
-    player.update(screen)
+        character.update(screen,character)
 
 
     # UPDATE SCREEN
