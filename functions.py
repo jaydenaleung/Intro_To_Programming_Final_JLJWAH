@@ -13,25 +13,47 @@ def quitCheck(event,running):
         running = False
     return running
 
-def moveCheck(event,characters):
-    for character in characters:
-        if event.type == pygame.KEYDOWN: # WASD / arrow keys
-            if event.key == pygame.K_LEFT or event.key == pygame.K_a: # move left
-                character.movingLeft = True
+def moveCheck(event,player,enemy):
+    # Reset some important values
+    player.falling = True
+    enemy.falling = True
+    
+    if event.type == pygame.KEYDOWN: # WASD / arrow keys
+        # Player
+        if event.key == pygame.K_a: # move left
+            player.movingLeft = True
 
-            if event.key == pygame.K_RIGHT or event.key == pygame.K_d: # move right
-                character.movingRight = True
-            
-            if event.key == pygame.K_UP or event.key == pygame.K_w: # move up
-                character.movingUp = True
-            
-            if event.key == pygame.K_DOWN or event.key == pygame.K_s: # move down
-                character.movingDown = True
-        elif event.type == pygame.KEYUP:
-            character.movingLeft = False
-            character.movingRight = False
-            character.movingUp = False
-            character.movingDown = False
+        if event.key == pygame.K_d: # move right
+            player.movingRight = True
         
-        if event.type == pygame.MOUSEBUTTONUP:
-            print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
+        if event.key == pygame.K_w: # move up
+            player.jumping = True
+            player.jumpSpeed = 25.0
+            player.gravMultiplier = 1
+        
+
+
+        # Enemy
+        if event.key == pygame.K_LEFT: # move left
+            enemy.movingLeft = True
+
+        if event.key == pygame.K_RIGHT: # move right
+            enemy.movingRight = True
+        
+        if event.key == pygame.K_UP: # move up
+            enemy.jumping = True
+            enemy.jumpSpeed = 25.0
+            enemy.gravMultiplier = 1
+        
+  
+    elif event.type == pygame.KEYUP:
+        player.movingLeft = False
+        player.movingRight = False
+    
+
+        enemy.movingLeft = False
+        enemy.movingRight = False
+  
+    
+    if event.type == pygame.MOUSEBUTTONUP:
+        print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
