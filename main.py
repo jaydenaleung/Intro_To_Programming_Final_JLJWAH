@@ -25,7 +25,7 @@ background = "white"
 
 # CLASS OBJECTS
 spawnX1 = 380; spawnY1 = 294; spawnX2 = 805; spawnY2 = 294
-player = classes.Player(spawnX1,spawnY1,"assets\Amogus.png")
+player = classes.Player(spawnX1,spawnY1,"assets\Among_us_right1.png")
 enemy = classes.Player(spawnX2,spawnY2,"assets\example_enemy.png")
 characters = [player,enemy]
 
