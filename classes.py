@@ -1,4 +1,5 @@
 import pygame
+import time
 
 '''
 Library of all classes, properties, and methods. To access the classes here in another file, use 'import classes'.
@@ -14,27 +15,35 @@ class Entity:
 
         self.x = x
         self.y = y
+        
+        self.gravity = 2.0
+        self.gravMultiplier = 1
+        self.jumpSpeed = 25.0 # CHANGE THIS to change speed
         # self.farx = self.x + self.sizex
         # self.fary = self.y + self.sizey        
         self.speed = speed
 
         self.movingLeft = False
         self.movingRight = False
-        self.movingUp = False
-        self.movingDown = False
+        self.jumping = False
+        self.falling = True
 
-    def update(self,surface,player):
+    def update(self,surface,character):
         resX = surface.get_size()[0]
         resY = surface.get_size()[1]
-
-        if player.movingLeft and player.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
-            player.x -= player.speed
-        if player.movingRight and player.x + player.sizex <= resX: # playerImg.get_size()[0] gets the horizontal size of the player
-            player.x += player.speed
-        if player.movingUp and player.y >= 0:
-            player.y -= player.speed
-        if player.movingDown and player.y + player.sizey <= resY:
-            player.y += player.speed
+        
+        if character.movingLeft and character.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
+            character.x -= character.speed
+        if character.movingRight and character.x + character.sizex <= resX: # characterImg.get_size()[0] gets the horizontal size of the character
+            character.x += character.speed
+        if character.falling and character.y >= 0 and character.y <= resY:
+            character.y += character.gravity * self.gravMultiplier
+            self.gravMultiplier += 0.5
+        if character.jumping and character.y + character.sizey <= resY:
+            if self.jumpSpeed > 0:
+                character.y -= self.jumpSpeed
+            else:
+                jumping = False
 
         surface.blit(self.image, (self.x, self.y))
 
@@ -45,9 +54,6 @@ class Player(Entity):
 class Enemy(Entity):
     def __init__(self,x,y,imagePath):
         super().__init__(x,y,imagePath,2.5)
-        
-    def update(self,surface):
-        surface.blit(self.image, (self.x, self.y))
 
 class Scene:
     def __init__(self,imagePath):
@@ -63,60 +69,61 @@ class Scene:
             self.x2 = x2 # bottomRight corner
             self.y2 = y2 # bottomRight corner
 
-        def solidify(self,surface,player):
+        def solidify(self,surface,character):
             resX = surface.get_size()[0]
             resY = surface.get_size()[1]
             
             '''
-            Note: error observed: moving left or right and then hitting the barrier going up or down causes the player to teleport
+            Note: error observed: moving left or right and then hitting the barrier going up or down causes the character to teleport
             '''
-            if player.movingLeft and player.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
-                if (not (player.x > self.x1 and player.x < self.x2 and player.y > self.y1-player.sizey and player.y < self.y2)): # Top platform/example
-                    player.movingLeft = True # if not hitting a barrier, keep movingLeft as true to move the player
-                elif player.x > self.x1 and player.x <= self.x2 and player.y > self.y1-player.sizey and player.y < self.y2:
-                    player.x = self.x2+1 # if hitting a barrier, move it outside of the barrier and keep movingLeft as false to stop moving into the barrier
-                    player.movingLeft = False
-            if player.movingRight and player.x + player.sizex <= resX: # playerImg.get_size()[0] gets the horizontal size of the player
-                if (not (player.x + player.sizex > self.x1 and player.x < self.x2 and player.y > self.y1-player.sizey and player.y < self.y2)):
-                    player.movingRight = True
-                elif player.x < self.x2 and player.x + player.sizex >= self.x1 and player.y > self.y1-player.sizey and player.y < self.y2:
-                    player.x = (self.x1-1)-player.sizex
-                    player.movingRight = False
-            if player.movingUp and player.y >= 0:
-                if (not (player.y > self.y1 and player.y < self.y2 and player.x > self.x1-player.sizex and player.x < self.x2)):
-                    player.movingUp = True
-                elif player.y <= self.y2 and player.y > self.y1 and player.x > self.x1-player.sizex and player.x < self.x2:
-                    player.y = self.y2+1
-                    player.movingUp = False
-            if player.movingDown and player.y + player.sizey <= resY:
-                if (not (player.y + player.sizey > self.y1 and player.y < self.y2 and player.x > self.x1-player.sizex and player.x < self.x2)):
-                    player.movingDown = True
-                elif player.y < self.y2 and player.y + player.sizey >= self.y1 and player.x > self.x1-player.sizex and player.x < self.x2:
-                    player.y = (self.y1-1)-player.sizey
-                    player.movingDown = False
+            if character.movingLeft and character.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
+                if (not (character.x > self.x1 and character.x < self.x2 and character.y > self.y1-character.sizey and character.y < self.y2)): # Top platform/example
+                    character.movingLeft = True # if not hitting a barrier, keep movingLeft as true to move the character
+                elif character.x > self.x1 and character.x <= self.x2 and character.y > self.y1-character.sizey and character.y < self.y2:
+                    character.x = self.x2+1 # if hitting a barrier, move it outside of the barrier and keep movingLeft as false to stop moving into the barrier
+                    character.movingLeft = False
+            if character.movingRight and character.x + character.sizex <= resX: # characterImg.get_size()[0] gets the horizontal size of the character
+                if (not (character.x + character.sizex > self.x1 and character.x < self.x2 and character.y > self.y1-character.sizey and character.y < self.y2)):
+                    character.movingRight = True
+                elif character.x < self.x2 and character.x + character.sizex >= self.x1 and character.y > self.y1-character.sizey and character.y < self.y2:
+                    character.x = (self.x1-1)-character.sizex
+                    character.movingRight = False
+            if character.jumping and character.y >= 0:
+                if (not (character.y > self.y1 and character.y < self.y2 and character.x > self.x1-character.sizex and character.x < self.x2)):
+                    character.jumping = True
+                elif character.y <= self.y2 and character.y > self.y1 and character.x > self.x1-character.sizex and character.x < self.x2:
+                    character.y = self.y2+1
+                    character.jumpSpeed = -1
+            if character.falling and character.y + character.sizey <= resY:
+                if (not (character.y + character.sizey > self.y1 and character.y < self.y2 and character.x > self.x1-character.sizex and character.x < self.x2)):
+                    character.falling = True
+                elif character.y < self.y2 and character.y + character.sizey >= self.y1 and character.x > self.x1-character.sizex and character.x < self.x2:
+                    character.y = (self.y1-1)-character.sizey
+                    character.gravMultiplier = 1
+                    character.falling = False
 
         '''
         ### Example code for a barrier with topleft corner (550,102) and bottomRight corner (733,124):
 
 
-        if player.movingLeft and player.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
-            if (not (player.x > 550 and player.x < 733 and player.y > 102-player.sizey and player.y < 124)): # Top platform/example
-                player.x -= player.speed
-                if player.x > 550 and player.x <= 733 and player.y > 102-player.sizey and player.y < 124:
-                    player.x = 733
-        if player.movingRight and player.x + player.sizex <= resX: # playerImg.get_size()[0] gets the horizontal size of the player
-            if (not (player.x + player.sizex > 550 and player.x < 733 and player.y > 102-player.sizey and player.y < 124)):
-                player.x += player.speed
-                if player.x < 733 and player.x + player.sizex >= 550 and player.y > 102-player.sizey and player.y < 124:
-                    player.x = 550-player.sizex
-        if player.movingUp and player.y >= 0:
-            if (not (player.y > 102 and player.y < 124 and player.x > 550-player.sizex and player.x < 733)):
-                player.y -= player.speed
-                if player.y <= 124 and player.y > 102 and player.x > 550-player.sizex and player.x < 733:
-                    player.y = 125
-        if player.movingDown and player.y + player.sizey <= resY:
-            if (not (player.y + player.sizey > 102 and player.y < 124 and player.x > 550-player.sizex and player.x < 733)):
-                player.y += player.speed
-                if player.y < 124 and player.y + player.sizey >= 102 and player.x > 550-player.sizex and player.x < 733:
-                    player.y = 101-player.sizey
+        if character.movingLeft and character.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
+            if (not (character.x > 550 and character.x < 733 and character.y > 102-character.sizey and character.y < 124)): # Top platform/example
+                character.x -= character.speed
+                if character.x > 550 and character.x <= 733 and character.y > 102-character.sizey and character.y < 124:
+                    character.x = 733
+        if character.movingRight and character.x + character.sizex <= resX: # characterImg.get_size()[0] gets the horizontal size of the character
+            if (not (character.x + character.sizex > 550 and character.x < 733 and character.y > 102-character.sizey and character.y < 124)):
+                character.x += character.speed
+                if character.x < 733 and character.x + character.sizex >= 550 and character.y > 102-character.sizey and character.y < 124:
+                    character.x = 550-character.sizex
+        if character.jumping and character.y >= 0:
+            if (not (character.y > 102 and character.y < 124 and character.x > 550-character.sizex and character.x < 733)):
+                character.y -= character.speed
+                if character.y <= 124 and character.y > 102 and character.x > 550-character.sizex and character.x < 733:
+                    character.y = 125
+        if character.falling and character.y + character.sizey <= resY:
+            if (not (character.y + character.sizey > 102 and character.y < 124 and character.x > 550-character.sizex and character.x < 733)):
+                character.y += character.speed
+                if character.y < 124 and character.y + character.sizey >= 102 and character.x > 550-character.sizex and character.x < 733:
+                    character.y = 101-character.sizey
         '''
