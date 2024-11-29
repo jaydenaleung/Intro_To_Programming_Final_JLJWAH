@@ -8,6 +8,7 @@ RUN THE PROGRAM HERE. Main file which connects and compiles all the different fr
 - Joza, Amie, Jayden: Intro to Programming Fall 2024
 '''
 brain = "not found"
+
 # Start Pygame
 pygame.init()
 resX = 1280; resY = 720
@@ -23,10 +24,15 @@ pygame.display.set_icon(icon)
 # Setup
 background = "white"
 
+# Player animations
+Amogus_animation_left = ["assets\Among_us_left1.png","assets\Among_us_left2.png", "assets\Among_us_left2.5.png", "assets\Among_us_left3.png", "assets\Among_us_left4.png", "assets\Among_us_left5.png", "assets\Among_us_left6.png", "assets\Among_us_left7.png", "assets\Among_us_left8.png"]
+animations = [Amogus_animation_left] # more to come
+chosenCharacter = animations[0] # default
+
 # CLASS OBJECTS
-spawnX1 = 380; spawnY1 = 294; spawnX2 = 970; spawnY2 = 294
-player = classes.Player(spawnX1,spawnY1,"assets\Amogus.png")
-enemy = classes.Enemy(spawnX2,spawnY2,"assets\example_enemy.png")
+spawnX1 = 280; spawnY1 = 294; spawnX2 = 970; spawnY2 = 294
+player = classes.Player(spawnX1,spawnY1,"assets\characters\AmongUs\Among_us_left1.png")
+enemy = classes.Enemy(spawnX2,spawnY2,"assets\characters\example_enemy.png")
 characters = [player,enemy]
 
 scene = classes.Scene("assets\example_battlefield.png")
