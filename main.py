@@ -24,9 +24,9 @@ pygame.display.set_icon(icon)
 background = "white"
 
 # CLASS OBJECTS
-spawnX1 = 380; spawnY1 = 294; spawnX2 = 805; spawnY2 = 294
-player = classes.Player(spawnX1,spawnY1,"assets\Among_us_right1.png")
-enemy = classes.Player(spawnX2,spawnY2,"assets\example_enemy.png")
+spawnX1 = 380; spawnY1 = 294; spawnX2 = 970; spawnY2 = 294
+player = classes.Player(spawnX1,spawnY1,"assets\Amogus.png")
+enemy = classes.Enemy(spawnX2,spawnY2,"assets\example_enemy.png")
 characters = [player,enemy]
 
 scene = classes.Scene("assets\example_battlefield.png")
@@ -39,6 +39,7 @@ barrierM3 = scene.Barrier(375,461,890,484)
 barrierM4 = scene.Barrier(435,494,772,546)
 barrierM5 = scene.Barrier(587,555,711,657)
 barriers = [barrierT,barrierL,barrierR,barrierM1,barrierM3,barrierM4,barrierM5]
+
 if brain == "smart":
     brain = "Found"
 
@@ -60,7 +61,6 @@ while running:
 
     # RENDER GAME OBJECTS HERE
         character.update(screen,character)
-
 
     # UPDATE SCREEN
     pygame.display.flip()
