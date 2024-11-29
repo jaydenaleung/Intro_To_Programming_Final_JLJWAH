@@ -1,5 +1,4 @@
 import pygame
-import time
 
 '''
 Library of all classes, properties, and methods. To access the classes here in another file, use 'import classes'.
@@ -8,8 +7,9 @@ Library of all classes, properties, and methods. To access the classes here in a
 '''
 
 class Entity:
-    def __init__(self,x,y,imagePath,speed):
-        self.image = pygame.image.load(imagePath)
+    def __init__(self,x,y,imagePath,speed):        
+        loaded = pygame.image.load(imagePath)
+        self.image = pygame.transform.scale(loaded, (50, 60))
         self.sizex = self.image.get_size()[0]
         self.sizey = self.image.get_size()[1]
 
@@ -19,7 +19,7 @@ class Entity:
         self.gravity = 2.0
         self.gravMultiplier = 1
         self.gravInterval = 0.5
-        self.jumpSpeed = 25.0 # CHANGE THIS to change speed
+        self.jumpSpeed = 20.0 # CHANGE THIS to change speed
         # self.farx = self.x + self.sizex
         # self.fary = self.y + self.sizey        
         self.speed = speed
