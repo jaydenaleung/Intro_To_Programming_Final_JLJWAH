@@ -18,6 +18,7 @@ class Entity:
         
         self.gravity = 2.0
         self.gravMultiplier = 1
+        self.gravInterval = 0.5
         self.jumpSpeed = 25.0 # CHANGE THIS to change speed
         # self.farx = self.x + self.sizex
         # self.fary = self.y + self.sizey        
@@ -38,22 +39,25 @@ class Entity:
             character.x += character.speed
         if character.falling and character.y >= 0 and character.y <= resY:
             character.y += character.gravity * self.gravMultiplier
-            self.gravMultiplier += 0.5
+            self.gravMultiplier += self.gravInterval
         if character.jumping and character.y + character.sizey <= resY:
             if self.jumpSpeed > 0:
                 character.y -= self.jumpSpeed
             else:
-                jumping = False
+                character.jumping = False
 
         surface.blit(self.image, (self.x, self.y))
 
 class Player(Entity):
     def __init__(self,x,y,imagePath):
         super().__init__(x,y,imagePath,5.0)
+        self.direction = False # facing right
     
 class Enemy(Entity):
     def __init__(self,x,y,imagePath):
         super().__init__(x,y,imagePath,2.5)
+        self.direction = True # facing left
+
 
 class Scene:
     def __init__(self,imagePath):
@@ -99,6 +103,7 @@ class Scene:
                     character.falling = True
                 elif character.y < self.y2 and character.y + character.sizey >= self.y1 and character.x > self.x1-character.sizex and character.x < self.x2:
                     character.y = (self.y1-1)-character.sizey
+                    character.jumpSpeed = -1
                     character.gravMultiplier = 1
                     character.falling = False
 
@@ -127,3 +132,41 @@ class Scene:
                 if character.y < 124 and character.y + character.sizey >= 102 and character.x > 550-character.sizex and character.x < 733:
                     character.y = 101-character.sizey
         '''
+
+
+class Move:
+    def __init__(self,sentFrom):
+        self.character = sentFrom
+        self.x = self.character.x
+        self.y = self.character.y
+
+        
+class Attack(Move):
+    def __init__(self,sentFrom,damage):
+        super.__init__(sentFrom)
+        self.dmg = damage
+        self.direction = True # True = facing Left, False = Right. Computed property with code yet to follow.
+
+class Melee(Attack):
+    def __init__(self,sentFrom,damage):
+        super().__init__(sentFrom,damage)
+
+class Ranged(Attack):
+    def __init__(self,sentFrom,damage):
+        super().__init__(sentFrom,damage)
+
+    class Projectile:
+        def __init(self,animationDirectory,speed):
+            self.speed = speed
+            self.images = []
+            
+            for image in animationDirectory:
+                loaded = pygame.image.load(image)
+                self.images.append(loaded)
+        
+
+class Defense(Move):
+    def __init__(self,sentFrom,health):
+        super.__init__(sentFrom)
+        self.hp = health
+        self.isActive = False # defense unactivated by default, only activated when button is pressed.
