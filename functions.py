@@ -28,9 +28,8 @@ def moveCheck(event,player,enemy):
         
         if event.key == pygame.K_w: # move up
             player.jumping = True
-            player.jumpSpeed = 25.0
-            player.gravMultiplier = 1
-        
+            player.jumpSpeed = 20.0
+            player.gravMultiplier = 1        
 
 
         # Enemy
@@ -42,7 +41,7 @@ def moveCheck(event,player,enemy):
         
         if event.key == pygame.K_UP: # move up
             enemy.jumping = True
-            enemy.jumpSpeed = 25.0
+            enemy.jumpSpeed = 20.0
             enemy.gravMultiplier = 1
         
   
