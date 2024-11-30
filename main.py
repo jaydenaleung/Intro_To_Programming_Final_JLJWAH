@@ -24,16 +24,47 @@ pygame.display.set_icon(icon)
 # Setup
 background = "white"
 
-# Player animations
-Amogus_animation_left = ["assets\Among_us_left1.png","assets\Among_us_left2.png", "assets\Among_us_left2.5.png", "assets\Among_us_left3.png", "assets\Among_us_left4.png", "assets\Among_us_left5.png", "assets\Among_us_left6.png", "assets\Among_us_left7.png", "assets\Among_us_left8.png"]
-animations = [Amogus_animation_left] # more to come
-chosenCharacter = animations[0] # default
+# Characters/player animations
+mario = classes.Character(
+    # Animations
+    ["assets\characters\example_char.png"],
+
+    # Moves
+    [classes.Shield(screen)]
+)
+
+amogus = classes.Character(
+    # Animations
+    ["assets\characters\AmongUs\Among_us_left1.png",
+    "assets\characters\AmongUs\Among_us_left2.png", 
+    "assets\characters\AmongUs\Among_us_left2.5.png", 
+    "assets\characters\AmongUs\Among_us_left3.png", 
+    "assets\characters\AmongUs\Among_us_left4.png", 
+    "assets\characters\AmongUs\Among_us_left5.png", 
+    "assets\characters\AmongUs\Among_us_left6.png", 
+    "assets\characters\AmongUs\Among_us_left7.png", 
+    "assets\characters\AmongUs\Among_us_left8.png",
+
+    "assets\characters\AmongUs\Among_us_right1.png",
+    "assets\characters\AmongUs\Among_us_right2.png", 
+    "assets\characters\AmongUs\Among_us_right2.5.png", 
+    "assets\characters\AmongUs\Among_us_right3.png", 
+    "assets\characters\AmongUs\Among_us_right4.png", 
+    "assets\characters\AmongUs\Among_us_right5.png", 
+    "assets\characters\AmongUs\Among_us_right6.png", 
+    "assets\characters\AmongUs\Among_us_right7.png", 
+    "assets\characters\AmongUs\Among_us_right8.png"],
+    # Moves (classes with method execute() to use them)
+    [classes.Shield(screen)]
+)
+
+characters = [mario,amogus] # more to come
 
 # CLASS OBJECTS
 spawnX1 = 280; spawnY1 = 294; spawnX2 = 970; spawnY2 = 294
-player = classes.Player(spawnX1,spawnY1,"assets\characters\AmongUs\Among_us_left1.png")
-enemy = classes.Enemy(spawnX2,spawnY2,"assets\characters\example_enemy.png")
-characters = [player,enemy]
+player = classes.Player(spawnX1,spawnY1,characters[0])
+enemy = classes.Enemy(spawnX2,spawnY2,characters[1])
+players = [player,enemy]
 
 scene = classes.Scene("assets\example_battlefield.png")
 barrierT = scene.Barrier(550,102,733,124)
@@ -58,9 +89,10 @@ while running:
     # WATCH FOR EVENTS HERE (CONDITIONALS SECTION)
     for event in pygame.event.get(): # BUG: this loop only runs when there are events, not always.
         running = functions.quitCheck(event,running)
-        functions.moveCheck(event,characters[0],characters[1])
+        functions.moveCheck(event,players[0],players[1])
+        functions.attackCheck(event,players[0],players[1])
     
-    for character in characters:
+    for character in players:
         for barrier in barriers:
             barrier.solidify(screen,character)
 
