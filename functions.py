@@ -29,7 +29,12 @@ def moveCheck(event,player,enemy):
         if event.key == pygame.K_w: # move up
             player.jumping = True
             player.jumpSpeed = 20.0
-            player.gravMultiplier = 1        
+            player.gravMultiplier = 1
+
+            if event.key == pygame.K_w and player.doubleJump == True:
+                player.jumping = True
+                player.doubleJump == False
+
 
 
         # Enemy
@@ -43,6 +48,9 @@ def moveCheck(event,player,enemy):
             enemy.jumping = True
             enemy.jumpSpeed = 20.0
             enemy.gravMultiplier = 1
+            if event.key == pygame.K_UP and enemy.doubleJump == True:
+                enemy.jumping = True
+                enemy.doubleJump == False
         
   
     elif event.type == pygame.KEYUP:
@@ -56,3 +64,27 @@ def moveCheck(event,player,enemy):
     
     if event.type == pygame.MOUSEBUTTONUP:
         print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
+
+def attackCheck(event,player,enemy):
+    if event.type == pygame.KEYDOWN:
+        movesP = player.chosenCharacter.moves
+        for move in movesP:
+            if move == 'melee':
+                pass # moves to come
+            elif move == 'ranged':
+                pass # moves to come
+            elif move == 'support': # more moves to come
+                if event.key == pygame.K_q:
+                    player.move1Activated = not player.move1Activated
+                    player.move1 = 'support'
+
+        movesE = enemy.chosenCharacter.moves
+        for move in movesE:
+            if move == 'melee': # moves to come  
+                pass
+            elif move == 'ranged': # moves to come
+                pass
+            elif move == 'support': # more moves to come
+                if event.key == pygame.K_n:
+                    enemy.move1Activated = not enemy.move1Activated
+                    enemy.move1 = 'support'
