@@ -19,7 +19,7 @@ class Entity:
         self.gravity = 2.0
         self.gravMultiplier = 1
         self.gravInterval = 0.5
-        self.jumpSpeed = 20.0 # CHANGE THIS to change speed
+        self.jumpSpeed = 20.0 # CHANGE THIS to change speed (& don't forget to change it in functions.py!)
         # self.farx = self.x + self.sizex
         # self.fary = self.y + self.sizey        
         self.speed = speed
@@ -29,10 +29,25 @@ class Entity:
         self.jumping = False
         self.falling = True
 
+        self.doubleJump = True 
+        self.attackHit = False
+
+        self.move1 = ''
+        self.move1Activated = False
+        self.move2 = ''
+        self.move2Activated = False
+        self.move3 = ''
+        self.move3Activated = False
+        self.move4 = ''
+        self.move4Activated = False
+
     def update(self,surface,character):
         resX = surface.get_size()[0]
         resY = surface.get_size()[1]
+
+        moves = character.chosenCharacter.moves
         
+        # Render movement
         if character.movingLeft and character.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
             character.x -= character.speed
         if character.movingRight and character.x + character.sizex <= resX: # characterImg.get_size()[0] gets the horizontal size of the character
@@ -45,19 +60,31 @@ class Entity:
                 character.y -= self.jumpSpeed
             else:
                 character.jumping = False
+                character.doubleJump = True
+        
+        # Render attacks
+        if self.move1Activated:
+            moves[self.move1][0].execute(character)
+        if self.move2Activated:
+            pass
+        if self.move3Activated:
+            pass
+        if self.move4Activated:
+            pass
 
         surface.blit(self.image, (self.x, self.y))
 
 class Player(Entity):
-    def __init__(self,x,y,imagePath):
-        super().__init__(x,y,imagePath,5.0)
+    def __init__(self,x,y,chosenCharacter):
+        super().__init__(x,y,chosenCharacter.imagePaths[0],5.0)
         self.direction = False # facing right
+        self.chosenCharacter = chosenCharacter
     
 class Enemy(Entity):
-    def __init__(self,x,y,imagePath):
-        super().__init__(x,y,imagePath,2.5)
+    def __init__(self,x,y,chosenCharacter):
+        super().__init__(x,y,chosenCharacter.imagePaths[9],2.5)
         self.direction = True # facing left
-
+        self.chosenCharacter = chosenCharacter
 
 class Scene:
     def __init__(self,imagePath):
@@ -107,45 +134,31 @@ class Scene:
                     character.gravMultiplier = 1
                     character.falling = False
 
-        '''
-        ### Example code for a barrier with topleft corner (550,102) and bottomRight corner (733,124):
-
-
-        if character.movingLeft and character.x >= 0: # Movement logic - without this, it will only move once when pressed and not when pressed down
-            if (not (character.x > 550 and character.x < 733 and character.y > 102-character.sizey and character.y < 124)): # Top platform/example
-                character.x -= character.speed
-                if character.x > 550 and character.x <= 733 and character.y > 102-character.sizey and character.y < 124:
-                    character.x = 733
-        if character.movingRight and character.x + character.sizex <= resX: # characterImg.get_size()[0] gets the horizontal size of the character
-            if (not (character.x + character.sizex > 550 and character.x < 733 and character.y > 102-character.sizey and character.y < 124)):
-                character.x += character.speed
-                if character.x < 733 and character.x + character.sizex >= 550 and character.y > 102-character.sizey and character.y < 124:
-                    character.x = 550-character.sizex
-        if character.jumping and character.y >= 0:
-            if (not (character.y > 102 and character.y < 124 and character.x > 550-character.sizex and character.x < 733)):
-                character.y -= character.speed
-                if character.y <= 124 and character.y > 102 and character.x > 550-character.sizex and character.x < 733:
-                    character.y = 125
-        if character.falling and character.y + character.sizey <= resY:
-            if (not (character.y + character.sizey > 102 and character.y < 124 and character.x > 550-character.sizex and character.x < 733)):
-                character.y += character.speed
-                if character.y < 124 and character.y + character.sizey >= 102 and character.x > 550-character.sizex and character.x < 733:
-                    character.y = 101-character.sizey
-        '''
-
 
 class Move:
     def __init__(self,sentFrom):
         self.character = sentFrom
         self.x = self.character.x
         self.y = self.character.y
-
         
 class Attack(Move):
-    def __init__(self,sentFrom,damage):
+    def __init__(self,sentFrom,damage,enemy):
         super.__init__(sentFrom)
         self.dmg = damage
+        self.hitboxWidth = 100
+        self.hitboxHeight = 200
         self.direction = True # True = facing Left, False = Right. Computed property with code yet to follow.
+        if self.direction == True:
+            hitbox = [self.x+self.hitboxWidth,self.y+self.hitboxHeight/2,self.y-self.hitboxHeight/2]  
+        elif self.direction == False:
+            hitbox = [self.x-self.hitboxWidth/2,self.y+self.hitboxHeight/2,self.y-self.hitboxHeight/2]
+        if enemy.y>hitbox[2] and enemy.y<hitbox[1]:
+            if self.direction == True:
+                if enemy.x>hitbox[0] and enemy.x<self.y:
+                    enemy.attackHit == True
+            if self.direction == False:
+                if enemy.x<hitbox[0] and enemy.x>self.y:
+                    enemy.attackHit == True     
 
 class Melee(Attack):
     def __init__(self,sentFrom,damage):
@@ -164,9 +177,42 @@ class Ranged(Attack):
                 loaded = pygame.image.load(image)
                 self.images.append(loaded)
         
+class Support(Move):
+    def __init__(self):
+        pass
 
-class Defense(Move):
-    def __init__(self,sentFrom,health):
-        super.__init__(sentFrom)
-        self.hp = health
+class Defense(Support):
+    def __init__(self):
+        pass
+
+class Shield(Defense):
+    def __init__(self,surface):
+        self.hp = 50
         self.isActive = False # defense unactivated by default, only activated when button is pressed.
+        self.surface = surface
+
+    def execute(self,sentFrom):
+        self.character = sentFrom
+        pygame.draw.circle(self.surface,'white',(self.character.x+(self.character.sizex/2),self.character.y+(self.character.sizey/2)),50,5)
+
+
+class Character:
+    def __init__(self,imagePaths=[str],moves=[]):
+        self.imagePaths = imagePaths
+        self.images = []
+        for image in self.imagePaths: # loading each animation frame
+            loaded = pygame.image.load(image)
+            self.images.append(loaded)
+
+        self.melee = []
+        self.ranged = []
+        self.support = []
+        for move in moves: # categorizing the given moves
+            if isinstance(move,Melee):
+                self.melee.append(move)
+            elif isinstance(move,Ranged):
+                self.ranged.append(move)
+            elif isinstance(move,Support): # else not used to be safe
+                self.support.append(move)
+
+        self.moves = {'melee':self.melee,'ranged':self.ranged,'support':self.support} # dictionary of moves (syntax is key: value)
