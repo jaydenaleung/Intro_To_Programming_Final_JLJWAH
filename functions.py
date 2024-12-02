@@ -65,6 +65,20 @@ def moveCheck(event,player,enemy):
     if event.type == pygame.MOUSEBUTTONUP:
         print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
 
+def animationCheck(character): #doesn't work
+    left = 0
+    if character.direction and character.movingLeft:
+        character.update(character.chosenCharacter.imagePaths[left])
+        left+=1
+        if left == len(character.chosenCharacter.imagePaths)/2:
+            left = 0
+    right = len(character.chosenCharacter.imagePaths)/2
+    if character.direction == False and character.movingRight:
+        character.update(character.chosenCharacter.imagePaths[right])
+        right+=1
+        if right == len(character.chosenCharacter.imagePaths):
+            right = len(character.chosenCharacter.imagePaths)/2
+            
 def attackCheck(event,player,enemy):
     if event.type == pygame.KEYDOWN:
         movesP = player.chosenCharacter.moves
