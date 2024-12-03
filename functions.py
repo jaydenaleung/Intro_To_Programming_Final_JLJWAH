@@ -65,19 +65,41 @@ def moveCheck(event,player,enemy):
     if event.type == pygame.MOUSEBUTTONUP:
         print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
 
-def animationCheck(character): #doesn't work
+def animationCheck(event,character,player): #doesn't work JAYDEN HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+    #if event.type == pygame.KEYDOWN:
     left = 0
-    if character.direction and character.movingLeft:
-        character.update(character.chosenCharacter.imagePaths[left])
+    right = right = len(character.chosenCharacter.imagePaths)/2
+
+    #left
+    if event.type == pygame.K_LEFT or pygame.K_a:
+        print("left")
         left+=1
-        if left == len(character.chosenCharacter.imagePaths)/2:
-            left = 0
-    right = len(character.chosenCharacter.imagePaths)/2
-    if character.direction == False and character.movingRight:
-        character.update(character.chosenCharacter.imagePaths[right])
-        right+=1
-        if right == len(character.chosenCharacter.imagePaths):
-            right = len(character.chosenCharacter.imagePaths)/2
+        character.image = player.chosenCharacter.images[left]
+    else:
+        left = 0 
+
+    if left == len(character.chosenCharacter.imagePaths)/2:
+        left = 0
+    
+    else:
+        left = 0
+    
+    '''
+    #right
+    if event.type == pygame.K_RIGHT or pygame.K_d:
+        if event.type == pygame.K_LEFT or pygame.K_a:
+            print("right")
+            right+=1
+            character.image = player.chosenCharacter.images[right]
+    else:
+        right = 0 
+
+    if right == len(character.chosenCharacter.imagePaths):
+        right = len(player.chosenCharacter.images)/2
+    
+    else:
+        right = 0
+    '''
             
 def attackCheck(event,player,enemy):
     if event.type == pygame.KEYDOWN:
