@@ -26,16 +26,11 @@ def moveCheck(event,player,enemy):
         if event.key == pygame.K_d: # move right
             player.movingRight = True
         
-        if event.key == pygame.K_w: # move up
+        if event.key == pygame.K_w and player.doubleJump < 2: # move up
             player.jumping = True
             player.jumpSpeed = 20.0
             player.gravMultiplier = 1
-
-            if event.key == pygame.K_w and player.doubleJump == True:
-                player.jumping = True
-                player.doubleJump == False
-
-
+            player.doubleJump += 1
 
         # Enemy
         if event.key == pygame.K_LEFT: # move left
@@ -44,13 +39,11 @@ def moveCheck(event,player,enemy):
         if event.key == pygame.K_RIGHT: # move right
             enemy.movingRight = True
         
-        if event.key == pygame.K_UP: # move up
+        if event.key == pygame.K_UP and enemy.doubleJump < 2: # move up
             enemy.jumping = True
             enemy.jumpSpeed = 20.0
             enemy.gravMultiplier = 1
-            if event.key == pygame.K_UP and enemy.doubleJump == True:
-                enemy.jumping = True
-                enemy.doubleJump == False
+            enemy.doubleJump += 1
         
   
     elif event.type == pygame.KEYUP:
@@ -80,10 +73,10 @@ def animationCheck(event,character,player): #doesn't work JAYDEN HEREEEEEEEEEEEE
 
     if left == len(character.chosenCharacter.imagePaths)/2:
         left = 0
-    
+
     else:
         left = 0
-    
+
     '''
     #right
     if event.type == pygame.K_RIGHT or pygame.K_d:
@@ -93,31 +86,34 @@ def animationCheck(event,character,player): #doesn't work JAYDEN HEREEEEEEEEEEEE
             character.image = player.chosenCharacter.images[right]
     else:
         right = 0 
-
     if right == len(character.chosenCharacter.imagePaths):
         right = len(player.chosenCharacter.images)/2
     
     else:
         right = 0
     '''
-            
+
 def attackCheck(event,player,enemy):
     if event.type == pygame.KEYDOWN:
         movesP = player.chosenCharacter.moves
         for move in movesP:
             if move == 'melee':
-                pass # moves to come
+                if event.key == pygame.K_x:
+                    player.move2Activated = not player.move1Activated
+                    player.move2 = 'melee'
             elif move == 'ranged':
                 pass # moves to come
             elif move == 'support': # more moves to come
-                if event.key == pygame.K_q:
+                if event.key == pygame.K_z:
                     player.move1Activated = not player.move1Activated
                     player.move1 = 'support'
 
         movesE = enemy.chosenCharacter.moves
         for move in movesE:
             if move == 'melee': # moves to come  
-                pass
+                if event.key == pygame.K_m:
+                    enemy.move2Activated = not enemy.move2Activated
+                    enemy.move2 = 'melee'
             elif move == 'ranged': # moves to come
                 pass
             elif move == 'support': # more moves to come

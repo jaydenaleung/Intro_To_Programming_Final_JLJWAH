@@ -7,7 +7,7 @@ RUN THE PROGRAM HERE. Main file which connects and compiles all the different fr
 
 - Joza, Amie, Jayden: Intro to Programming Fall 2024
 '''
-brain = "not found"
+脑子 = "not found"
 
 # Start Pygame
 pygame.init()
@@ -30,12 +30,13 @@ mario = classes.Character(
     ["assets\characters\example_char.png"],
 
     # Moves
-    [classes.Shield(screen)]
+    [classes.Shield(screen),
+     classes.Punch(screen,5)]
 )
 
 amogus = classes.Character(
     # Animations
-    ["assets\characters\AmongUs\Among_us_left1.png",
+    ["assets\characters\AmongUs\Among_us_left1.png", 
     "assets\characters\AmongUs\Among_us_left2.png", 
     "assets\characters\AmongUs\Among_us_left2.5.png", 
     "assets\characters\AmongUs\Among_us_left3.png", 
@@ -55,7 +56,8 @@ amogus = classes.Character(
     "assets\characters\AmongUs\Among_us_right7.png", 
     "assets\characters\AmongUs\Among_us_right8.png"],
     # Moves (classes with method execute() to use them)
-    [classes.Shield(screen)]
+    [classes.Shield(screen),
+     classes.Punch(screen,5)]
 )
 
 characters = [mario,amogus] # more to come
@@ -77,8 +79,8 @@ barrierM4 = scene.Barrier(435,494,772,546)
 barrierM5 = scene.Barrier(587,555,711,657)
 barriers = [barrierT,barrierL,barrierR,barrierM1,barrierM3,barrierM4,barrierM5]
 
-if brain == "smart":
-    brain = "Found"
+if 脑子 == "smart":
+    脑子 = "Found"
 
 while running:
     # SETUP
@@ -99,7 +101,8 @@ while running:
 
 
     # RENDER GAME OBJECTS HERE
-        character.update(screen,character)
+        character.update(screen,character,players)
+        print(players[1].hp)
 
     # UPDATE SCREEN
     pygame.display.flip()
