@@ -141,6 +141,7 @@ class Scene:
                 elif character.y <= self.y2 and character.y >= self.y1 and character.x > self.x1-character.sizex and character.x < self.x2:
                     character.y = self.y2+1
                     character.jumpSpeed = -1
+                    character.gravMultiplier = 1
             if character.falling and character.y + character.sizey <= resY:
                 if (not (character.y + character.sizey > self.y1 and character.y < self.y2 and character.x > self.x1-character.sizex and character.x < self.x2)):
                     character.falling = True
@@ -205,10 +206,6 @@ class Ranged(Attack):
         if self.direction:
             while self.projectileX>0:
                 self.projectileX -= self.projectileSpeed
-        
-
-
-    
         
 class Support(Move):
     def __init__(self):
