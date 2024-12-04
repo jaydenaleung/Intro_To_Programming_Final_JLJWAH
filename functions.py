@@ -20,39 +20,43 @@ def moveCheck(event,player,enemy):
     
     if event.type == pygame.KEYDOWN: # WASD / arrow keys
         # Player
-        if event.key == pygame.K_a: # move left
-            player.movingLeft = True
-
-        if event.key == pygame.K_d: # move right
-            player.movingRight = True
-        
         if event.key == pygame.K_w and player.doubleJump < 2: # move up
             player.jumping = True
             player.jumpSpeed = 20.0
             player.gravMultiplier = 1
             player.doubleJump += 1
+        
+        if event.key == pygame.K_a: # move left
+            player.movingLeft = True
+
+        if event.key == pygame.K_d: # move right
+            player.movingRight = True        
 
         # Enemy
-        if event.key == pygame.K_LEFT: # move left
-            enemy.movingLeft = True
-
-        if event.key == pygame.K_RIGHT: # move right
-            enemy.movingRight = True
-        
         if event.key == pygame.K_UP and enemy.doubleJump < 2: # move up
             enemy.jumping = True
             enemy.jumpSpeed = 20.0
             enemy.gravMultiplier = 1
             enemy.doubleJump += 1
-        
+
+        if event.key == pygame.K_LEFT: # move left
+            enemy.movingLeft = True
+
+        if event.key == pygame.K_RIGHT: # move right
+            enemy.movingRight = True
   
     elif event.type == pygame.KEYUP:
-        player.movingLeft = False
-        player.movingRight = False
-    
+        if event.key == pygame.K_a:
+            player.movingLeft = False
+         
+        if event.key == pygame.K_d:
+            player.movingRight = False    
 
-        enemy.movingLeft = False
-        enemy.movingRight = False
+        if event.key == pygame.K_LEFT:
+            enemy.movingLeft = False
+
+        if event.key == pygame.K_RIGHT:
+            enemy.movingRight = False
   
     
     if event.type == pygame.MOUSEBUTTONUP:
