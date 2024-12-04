@@ -102,7 +102,6 @@ while running:
 
     # RENDER GAME OBJECTS HERE
         character.update(screen,character,players)
-        print(players[1].hp)
 
     # UPDATE SCREEN
     pygame.display.flip()
