@@ -93,7 +93,6 @@ while running:
         running = functions.quitCheck(event,running)
         functions.moveCheck(event,players[0],players[1])
         functions.attackCheck(event,players[0],players[1])
-        functions.animationCheck(event,players[0],player)
     
     for character in players:
         for barrier in barriers:
