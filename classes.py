@@ -70,6 +70,25 @@ class Entity:
             else:
                 character.jumping = False
 
+        #Animation
+        #Left
+        if character.movingLeft: 
+            character.chosenCharacter.last_left+=1
+            if character.chosenCharacter.last_left == len(character.chosenCharacter.imagePaths)/2:
+                character.chosenCharacter.last_left = 0
+            character.image = character.chosenCharacter.images[character.chosenCharacter.last_left]
+        else:
+            character.chosenCharacter.last_left = 0
+        #Right
+        print(character.chosenCharacter.last_right)
+        if character.movingRight: 
+            character.chosenCharacter.last_right+=1
+            if character.chosenCharacter.last_right == len(character.chosenCharacter.imagePaths):
+                character.chosenCharacter.last_right = int(len(character.chosenCharacter.imagePaths)/2)
+            character.image = character.chosenCharacter.images[character.chosenCharacter.last_right]
+        else:
+            character.chosenCharacter.last_right = int(len(character.chosenCharacter.imagePaths)/2)
+            
         # Render attacks
         if self.move1Activated:
             moves[self.move1][0].execute(character)
