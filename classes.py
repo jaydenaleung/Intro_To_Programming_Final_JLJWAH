@@ -1,4 +1,5 @@
 import pygame
+import time
 
 '''
 Library of all classes, properties, and methods. To access the classes here in another file, use 'import classes'.
@@ -9,7 +10,7 @@ Library of all classes, properties, and methods. To access the classes here in a
 class Entity:
     def __init__(self,x,y,imagePath,speed,sentFrom):        
         loaded = pygame.image.load(imagePath)
-        self.image = pygame.transform.scale(loaded, (50, 60))
+        self.image = pygame.transform.scale(loaded, (30, 40))
         self.sizex = self.image.get_size()[0]
         self.sizey = self.image.get_size()[1]
 
@@ -18,13 +19,14 @@ class Entity:
         
         self.gravity = 2.0
         self.gravMultiplier = 1
-        self.gravInterval = 0.5
-        self.jumpSpeed = 20.0 # CHANGE THIS to change speed (& don't forget to change it in functions.py!)
+        self.gravInterval = 0.1
+        self.jumpSpeed = 10.0 # CHANGE THIS to change speed (& don't forget to change it in functions.py!)
         # self.farx = self.x + self.sizex
         # self.fary = self.y + self.sizey        
         self.speed = speed
 
         self.hp = 0.0 #hp
+        self.score = 0
 
         self.movingLeft = False
         self.movingRight = False
@@ -70,8 +72,8 @@ class Entity:
             else:
                 character.jumping = False
 
-        #Animation
-        #Left
+        # Animation
+        # Left
         if character.movingLeft: 
             character.chosenCharacter.last_left+=1
             if character.chosenCharacter.last_left == len(character.chosenCharacter.imagePaths)/2:
@@ -80,7 +82,6 @@ class Entity:
         else:
             character.chosenCharacter.last_left = 0
         #Right
-        print(character.chosenCharacter.last_right)
         if character.movingRight: 
             character.chosenCharacter.last_right+=1
             if character.chosenCharacter.last_right == len(character.chosenCharacter.imagePaths):
@@ -88,7 +89,7 @@ class Entity:
             character.image = character.chosenCharacter.images[character.chosenCharacter.last_right]
         else:
             character.chosenCharacter.last_right = int(len(character.chosenCharacter.imagePaths)/2)
-            
+        
         # Render attacks
         if self.move1Activated:
             moves[self.move1][0].execute(character)
@@ -96,9 +97,11 @@ class Entity:
             dmg = moves[self.move2][0].execute(character,enemy)
             self.hp += dmg
         if self.move3Activated:
-            pass
+            dmg = moves[self.move3][0].execute(character,enemy)
+            self.hp += dmg
         if self.move4Activated:
             pass
+
         if self.attackHit == True:
             if self.x > enemy.x:
                 self.hitFrom == "left"
@@ -117,7 +120,7 @@ class Entity:
 
 class Player(Entity):
     def __init__(self,x,y,chosenCharacter):
-        super().__init__(x,y,chosenCharacter.imagePaths[0],5.0,chosenCharacter)
+        super().__init__(x,y,chosenCharacter.imagePaths[0],2.0,chosenCharacter)
         self.direction = False # facing right
         self.chosenCharacter = chosenCharacter
         self.knockbackMultiplier = self.hp/2
@@ -128,13 +131,18 @@ class Player(Entity):
     
 class Enemy(Entity):
     def __init__(self,x,y,chosenCharacter):
-        super().__init__(x,y,chosenCharacter.imagePaths[9],5.0,chosenCharacter)
+        super().__init__(x,y,chosenCharacter.imagePaths[9],2.0,chosenCharacter)
         self.direction = True # facing left
         self.chosenCharacter = chosenCharacter
 
 class Scene:
     def __init__(self,imagePath):
         self.image = pygame.image.load(imagePath)
+        self.barriers = []
+        self.spawnX1 = 0
+        self.spawnY1 = 0
+        self.spawnX2 = 0
+        self.spawnY2 = 0
 
     def update(self,screen):
         screen.blit(self.image,(0,0))
@@ -146,13 +154,22 @@ class Scene:
             self.x2 = x2 # bottomRight corner
             self.y2 = y2 # bottomRight corner
 
-        def solidify(self,surface,character):
+        def solidify(self,surface,character,characters):
             resX = surface.get_size()[0]
             resY = surface.get_size()[1]
+            enemy = [c for c in characters if c != character][0] # determine enemy
 
             '''
             Note: error observed: moving left or right and then hitting the barrier going up or down causes the character to teleport
             '''
+            
+            if character.x < 0 or character.x + character.sizex > resX or character.y < 0 or character.y + character.sizey > resY: # respawn
+                character.x = 640
+                character.y = 100
+                character.gravMultiplier = 0
+                enemy.score += 1
+                time.sleep(3) # wait 3 secs
+
 
             if character.jumping and character.y >= 0:
                 if (not (character.y > self.y1 and character.y < self.y2 and character.x > self.x1-character.sizex and character.x < self.x2)):
@@ -191,7 +208,7 @@ class Move:
         self.y = self.character.y
         
 class Attack(Move):
-    def __init__(self,sentFrom,enemy):
+    def __init__(self,sentFrom,enemy,damage):
         super().__init__(sentFrom)
         self.hitboxWidth = 100
         self.hitboxHeight = 200
@@ -204,28 +221,44 @@ class Attack(Move):
             if self.direction == True:
                 if enemy.x>hitbox[0] and enemy.x<self.x:
                     enemy.attackHit = True
+                    enemy.hp+=self.damage*(enemy.hp/100,0+1.0)
             if self.direction == False:
                 if enemy.x<hitbox[0] and enemy.x>self.x:
                     enemy.attackHit = True
+                    enemy.attackHit +=self.damage*(enemy.hp/100,0+1.0)
 
 class Melee(Attack):
-    def __init__(self,sentFrom,damage):
-        super().__init__(sentFrom,damage)
+    def __init__(self,sentFrom):
+        super().__init__(sentFrom)
+        self.hitboxWidth = 25
+        self.hitboxHeight = 10
+        self.damage = 5.0
 
 class Ranged(Attack):
     def __init__(self,sentFrom,damage):
         super().__init__(sentFrom,damage)
-    def execute(self):
+    def execute(self,enemy):
         self.projectileSpeed = 10
         self.projectileX = self.x
         self.projectileY = self.y
+        self.projectileSizeX = 10
+        self.projectileSizeY = 15
+        self.damage = 10
         if not self.direction:
-            while self.projectileX < 1280:
+            while self.projectileX < 1280 and not ((self.projectileX+self.projectileSizeX or self.projectileX-self.projectileSizeX) and (self.projectileY+self.projectileSizeY or self.projectileY-self.projectileSizeY) == enemy.x):
                 self.projectileX += self.projectileSpeed
+            if self.projectileX == enemy.x:
+                enemy.attackHit = True  
+                self.projectileX = -100
+                self.projectileY = -100
         if self.direction:
-            while self.projectileX>0:
+            while self.projectileX > 0 and not ((self.projectileX+self.projectileSizeX or self.projectileX-self.projectileSizeX) and (self.projectileY+self.projectileSizeY or self.projectileY-self.projectileSizeY) == enemy.x):
                 self.projectileX -= self.projectileSpeed
-        
+            if self.projectileX == enemy.x:
+                enemy.attackHit = True
+                self.projectileX = -100
+                self.projectileY = -100
+
 class Support(Move):
     def __init__(self):
         pass
@@ -241,14 +274,23 @@ class Punch(Melee):
     def __init__(self,surface,damage):
         self.damage = damage
         self.surface = surface
-        self.照片 = pygame.image.load("assets\characters\mario_punch.png")
-
+        a = 'a'; self.照片 = pygame.image.load(f"assets\{a}ttacks\Mario\Mario_punch.png")
     def execute(self,sentFrom,enemy):
         self.enemy = enemy
         self.character = sentFrom
         self.surface.blit(self.照片,(self.character.x + self.character.sizex,self.character.y + self.character.sizey/2-(self.照片.get_size()[1])/2)) # publish the image in front of player and at the center
-        self.enemy.hp += self.damage
-        return self.enemy.hp
+    
+class Fireball(Ranged): 
+    def __init__(self,surface,damage):
+        self.damage = damage
+        self.surface = surface
+        a = 'a'; self.照片 = pygame.image.load(f"assets\{a}ttacks\Mario\Mario_fireball.png")
+#taco moment
+    def execute(self,sentFrom,enemy):
+        self.enemy = enemy
+        self.character = sentFrom
+        self.surface.blit(self.照片,(self.projectileX,self.projectileY)) # zhao pian W
+
 
 class Shield(Defense):
     def __init__(self,surface):
@@ -267,7 +309,11 @@ class Character:
         self.images = []
         for image in self.imagePaths: # loading each animation frame
             loaded = pygame.image.load(image)
-            self.images.append(loaded)
+            addImage = pygame.transform.scale(loaded, (30,40))
+            self.images.append(addImage)
+
+        self.last_left = 0
+        self.last_right = 0
 
         self.melee = []
         self.ranged = []
