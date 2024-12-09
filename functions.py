@@ -13,16 +13,16 @@ def quitCheck(event,running):
         running = False
     return running
 
-def moveCheck(event,player,enemy):
+def moveCheck(event,player,player2):
     # Reset some important values
     player.falling = True
-    enemy.falling = True
+    player2.falling = True
     
     if event.type == pygame.KEYDOWN: # WASD / arrow keys
         # Player
         if event.key == pygame.K_w and player.doubleJump < 2: # move up
             player.jumping = True
-            player.jumpSpeed = 20.0
+            player.jumpSpeed = 10.0
             player.gravMultiplier = 1
             player.doubleJump += 1
         
@@ -32,18 +32,18 @@ def moveCheck(event,player,enemy):
         if event.key == pygame.K_d: # move right
             player.movingRight = True        
 
-        # Enemy
-        if event.key == pygame.K_UP and enemy.doubleJump < 2: # move up
-            enemy.jumping = True
-            enemy.jumpSpeed = 20.0
-            enemy.gravMultiplier = 1
-            enemy.doubleJump += 1
+        # player2
+        if event.key == pygame.K_UP and player2.doubleJump < 2: # move up
+            player2.jumping = True
+            player2.jumpSpeed = 10.0
+            player2.gravMultiplier = 1
+            player2.doubleJump += 1
 
         if event.key == pygame.K_LEFT: # move left
-            enemy.movingLeft = True
+            player2.movingLeft = True
 
         if event.key == pygame.K_RIGHT: # move right
-            enemy.movingRight = True
+            player2.movingRight = True
   
     elif event.type == pygame.KEYUP:
         if event.key == pygame.K_a:
@@ -53,16 +53,17 @@ def moveCheck(event,player,enemy):
             player.movingRight = False    
 
         if event.key == pygame.K_LEFT:
-            enemy.movingLeft = False
+            player2.movingLeft = False
 
         if event.key == pygame.K_RIGHT:
-            enemy.movingRight = False
+            player2.movingRight = False
   
     
     if event.type == pygame.MOUSEBUTTONUP:
         print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
+        print(str(player.x)+","+str(player.y))
 
-def attackCheck(event,player,enemy):
+def attackCheck(event,player,player2):
     if event.type == pygame.KEYDOWN:
         movesP = player.chosenCharacter.moves
         for move in movesP:
@@ -71,21 +72,25 @@ def attackCheck(event,player,enemy):
                     player.move2Activated = not player.move1Activated
                     player.move2 = 'melee'
             elif move == 'ranged':
-                pass # moves to come
+                if event.key == pygame.K_c:
+                    player.move3Activated = not player.move3Activated
+                    player.move3 = 'ranged'
             elif move == 'support': # more moves to come
                 if event.key == pygame.K_z:
                     player.move1Activated = not player.move1Activated
                     player.move1 = 'support'
 
-        movesE = enemy.chosenCharacter.moves
+        movesE = player2.chosenCharacter.moves
         for move in movesE:
             if move == 'melee': # moves to come  
                 if event.key == pygame.K_m:
-                    enemy.move2Activated = not enemy.move2Activated
-                    enemy.move2 = 'melee'
+                    player2.move2Activated = not player2.move2Activated
+                    player2.move2 = 'melee'
             elif move == 'ranged': # moves to come
-                pass
+                if event.key == pygame.K_COMMA:
+                    player2.move3Activated = not player2.move3Activated
+                    player2.move3 = 'ranged'
             elif move == 'support': # more moves to come
                 if event.key == pygame.K_n:
-                    enemy.move1Activated = not enemy.move1Activated
-                    enemy.move1 = 'support'
+                    player2.move1Activated = not player2.move1Activated
+                    player2.move1 = 'support'
