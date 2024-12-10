@@ -21,6 +21,19 @@ icon = pygame.image.load("assets\icon.png")
 pygame.display.set_caption(title)
 pygame.display.set_icon(icon)
 
+# Homepage
+b = 'b'; original_homepage = pygame.image.load(f"assets\{b}ackgrounds\homepage.jpeg")
+homepage = pygame.transform.scale(original_homepage,(1280,720))
+
+# Music
+pygame.mixer.music.load("assets\music\Lifelight.mp3")
+pygame.mixer.music.play()
+pygame.mixer.music.queue("assets\music\Poems_of_a_Machine.mp3")
+pygame.mixer.music.queue("assets\music\Sky_Fortress.mp3")
+pygame.mixer.music.queue("assets\music\Diamond_Eyes.mp3")
+pygame.mixer.music.queue("assets\music\Pokemon.mp3")
+pygame.mixer.music.queue("assets\music\Super_Mario_Bros.mp3")
+
 # Setup
 background = "white"
 
@@ -115,6 +128,24 @@ players = [player,player2]
 if 脑子 == "smart":
     脑子 = "Found"
 
+home = True
+running = False
+
+#Homepage
+while home:
+    #Load Homepage
+    screen.blit(homepage,(0,0))
+
+    # WATCH FOR EVENTS HERE (CONDITIONALS SECTIONS)
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            running = True
+            home = False
+    
+    pygame.display.flip()
+    clock.tick(60)  # limits FPS to 60
+
+#Battle
 while running:
     # SETUP
     screen.fill(background)
