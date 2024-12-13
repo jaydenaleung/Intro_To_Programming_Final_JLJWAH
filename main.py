@@ -26,13 +26,13 @@ b = 'b'; original_homepage = pygame.image.load(f"assets\{b}ackgrounds\homepage.j
 homepage = pygame.transform.scale(original_homepage,(1280,720))
 
 # Music
-pygame.mixer.music.load("assets\music\Lifelight.mp3")
-pygame.mixer.music.play()
-pygame.mixer.music.queue("assets\music\Poems_of_a_Machine.mp3")
-pygame.mixer.music.queue("assets\music\Sky_Fortress.mp3")
-pygame.mixer.music.queue("assets\music\Diamond_Eyes.mp3")
-pygame.mixer.music.queue("assets\music\Pokemon.mp3")
-pygame.mixer.music.queue("assets\music\Super_Mario_Bros.mp3")
+#pygame.mixer.music.load("assets\music\Lifelight.mp3")
+#pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
+#pygame.mixer.music.load("assets\music\Sky_Fortress.mp3")
+#pygame.mixer.music.load("assets\music\Diamond_Eyes.mp3")
+#pygame.mixer.music.load("assets\music\Pokemon.mp3")
+#pygame.mixer.music.load("assets\music\Super_Mario_Bros.mp3")
+
 
 # Setup
 background = "white"
@@ -40,7 +40,7 @@ background = "white"
 # Characters/player animations
 mario = classes.Character(
     # Animations
-    ["assets\characters\Mario\Mario_right1.png"],
+    ["assets\characters\Mario\Mario_right1.png", "assets\holder.jpeg"],
 
     # Moves
     [classes.Shield(screen),
@@ -75,6 +75,11 @@ amogus = classes.Character(
 )
 
 characters = [mario,amogus] # more to come
+
+# Player Nametags
+font = pygame.font.Font("nametag_font.ttf", 20)
+nametag_P1 = font.render("P1", False, "white", "black") #keep the space
+nametag_P2 = font.render("P2", False, "white", "black")
 
 # CLASS OBJECTS
 ## Backgrounds
@@ -118,39 +123,99 @@ luigi.barriers = [barrierT_4,barrierL_4,barrierR_4,barrierM1_4,barrierM2_4]
 scenes = [default,finalDest,fountain,luigi]
 selectedScene = scenes[1]
 
-## Players
-spawnX1 = selectedScene.spawnX1; spawnY1 = selectedScene.spawnY1; spawnX2 = selectedScene.spawnX2; spawnY2 = selectedScene.spawnY2
-player = classes.Player(spawnX1,spawnY1,characters[0])
-player2 = classes.Player(spawnX2,spawnY2,characters[1])
-players = [player,player2]
-
 
 if 脑子 == "smart":
     脑子 = "Found"
+    
 
-home = True
-running = False
+home = True # Home screen
+running = False # Main game
+selection = False # Character selection
 
-#Homepage
+times_clicked = 0 # counts times the mouse was clicked for character selection
+P1 = characters[0]
+P2 = characters[1]
+
+# Music
+pygame.mixer.music.load("assets\music\Lifelight.mp3")
+pygame.mixer.music.play()
+
 while home:
-    #Load Homepage
+    # Load Homepage
     screen.blit(homepage,(0,0))
-
-    # WATCH FOR EVENTS HERE (CONDITIONALS SECTIONS)
+    
+    # Watch for events
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
-            running = True
+            selection = True
             home = False
+            pygame.mixer.music.stop()
+            pygame.mixer.music.unload()
+            pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
+            pygame.mixer.music.play()
     
     pygame.display.flip()
     clock.tick(60)  # limits FPS to 60
 
-#Battle
+
+while selection:
+    # Character Select screen
+    screen.fill("red")
+
+    #text("CHOOSE YOUR CHARACTER",640,100)
+    ID1 = pygame.image.load("assets\holder.jpeg")
+    ID2 = pygame.image.load("assets\characters\AmongUs\Amogus_ID.png")
+    ID3 = pygame.image.load("assets\holder.jpeg")
+    screen.blit(ID1,(150,100))
+    screen.blit(ID2,(500,100))
+    screen.blit(ID3,(850,100))
+
+    for event in pygame.event.get():
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if mouse_x in range(150,300) and mouse_y in range(100,350):
+                if times_clicked == 0:
+                    P1 = characters[0]
+                else:
+                    P2 = characters[0]
+                times_clicked+=1
+            if mouse_x in range(500,750) and mouse_y in range(100,350):
+                if times_clicked == 0:
+                    P1 = characters[1]
+                else:
+                    P2 = characters[1]
+                times_clicked+=1
+            if mouse_x in range(850,1100) and mouse_y in range(100,350):
+                times_clicked+=1
+            
+            # Goes to game after selecting characters
+            if times_clicked == 2:
+                running = True
+                selection = False
+                pygame.mixer.music.stop()
+                pygame.mixer.music.unload()
+                pygame.mixer.music.load("assets\music\Diamond_Eyes.mp3")
+                pygame.mixer.music.play()
+    
+    ## Players
+    spawnX1 = selectedScene.spawnX1; spawnY1 = selectedScene.spawnY1; spawnX2 = selectedScene.spawnX2; spawnY2 = selectedScene.spawnY2
+    player = classes.Player(spawnX1,spawnY1,P1)
+    player2 = classes.Player(spawnX2,spawnY2,P2)
+    players = [player,player2]
+
+    pygame.display.flip()
+    clock.tick(60)  # limits FPS to 60
+
+
 while running:
     # SETUP
     screen.fill(background)
     selectedScene.update(screen)
 
+    # Nametag
+    screen.blit(nametag_P1, (player.x + 7, player.y - 22))
+    screen.blit(nametag_P2, (player2.x + 7, player2.y - 22))
 
     # WATCH FOR EVENTS HERE (CONDITIONALS SECTION)
     for event in pygame.event.get(): # BUG: this loop only runs when there are events, not always.
