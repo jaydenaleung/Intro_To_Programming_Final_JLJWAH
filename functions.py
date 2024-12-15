@@ -1,5 +1,4 @@
 import pygame
-import classes
 
 '''
 Library of all functions. Does not include class methods; use 'import classes' to access those methods.
@@ -57,8 +56,7 @@ def moveCheck(event,player,player2):
 
         if event.key == pygame.K_RIGHT:
             player2.movingRight = False
-  
-    
+
     if event.type == pygame.MOUSEBUTTONUP:
         print(str(pygame.mouse.get_pos()[0]) + "," + str(pygame.mouse.get_pos()[1]))
         print(str(player.x)+","+str(player.y))
@@ -79,6 +77,13 @@ def attackCheck(event,player,player2):
                 if event.key == pygame.K_z:
                     player.move1Activated = not player.move1Activated
                     player.move1 = 'support'
+            elif move == 'ult':
+                if event.key==pygame.K_v:
+                    player.move4Activated = not player.move1Activated
+                    player.move4 = 'ult'
+            elif move == 'nuke':
+                if event.key==pygame.K_1 and event.key==pygame.K_2 and event.key==pygame.K_3:
+                    player.nuke = True
 
         movesE = player2.chosenCharacter.moves
         for move in movesE:
@@ -94,3 +99,7 @@ def attackCheck(event,player,player2):
                 if event.key == pygame.K_n:
                     player2.move1Activated = not player2.move1Activated
                     player2.move1 = 'support'
+            elif move == 'ult':
+                if event.key==pygame.K_PERIOD:
+                    player2.move4Activated = not player.move1Activated
+                    player2.move4 = 'ult'
