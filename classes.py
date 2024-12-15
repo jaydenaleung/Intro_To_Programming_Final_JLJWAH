@@ -1,5 +1,4 @@
 import pygame
-import time
 
 '''
 Library of all classes, properties, and methods. To access the classes here in another file, use 'import classes'.
@@ -16,7 +15,7 @@ class Entity:
 
         self.x = x
         self.y = y
-        
+        self.ultUse=True
         self.gravity = 2.0
         self.gravMultiplier = 1
         self.gravInterval = 0.1
@@ -24,6 +23,8 @@ class Entity:
         # self.farx = self.x + self.sizex
         # self.fary = self.y + self.sizey        
         self.speed = speed
+        self.nuke= False
+        self.direction = True # True = facing left, False = facing right
 
         self.hp = 0.0 #hp
         self.score = 0
@@ -71,10 +72,13 @@ class Entity:
                 character.y -= self.jumpSpeed
             else:
                 character.jumping = False
+        
+            #put color here
 
         # Animation
         # Left
-        if character.movingLeft: 
+        if character.movingLeft:
+            character.direction = True
             character.chosenCharacter.last_left+=1
             if character.chosenCharacter.last_left == len(character.chosenCharacter.imagePaths)/2:
                 character.chosenCharacter.last_left = 0
@@ -83,6 +87,7 @@ class Entity:
             character.chosenCharacter.last_left = 0
         #Right
         if character.movingRight: 
+            character.direction = False
             character.chosenCharacter.last_right+=1
             if character.chosenCharacter.last_right == len(character.chosenCharacter.imagePaths):
                 character.chosenCharacter.last_right = int(len(character.chosenCharacter.imagePaths)/2)
@@ -96,25 +101,48 @@ class Entity:
         if self.move2Activated:
             dmg = moves[self.move2][0].execute(character,enemy)
             self.hp += dmg
+            self.move2Activated = False
         if self.move3Activated:
             dmg = moves[self.move3][0].execute(character,enemy)
             self.hp += dmg
-        if self.move4Activated:
-            pass
+        if self.move4Activated: # and self.hp > 100.0
+            if moves[self.move4][0].isActive:
+                moves[self.move4][0].execute(character)
+        if self.nuke:
+            self.hp+=100.0
+            enemy.hp+=100.0
 
         if self.attackHit == True:
             if self.x > enemy.x:
-                self.hitFrom == "left"
+                self.hitFrom = "left"
             if self.x < enemy.x:
-                self.hitFrom == "right"
-        if self.hitFrom == "left":
-            self.knockBackMultiplier = (self.hp/100)+1.0
-            self.x+= self.knockback*(self.knockBackMultiplier*0.75)
-            self.y+= self.knockback*self.knockBackMultiplier
-        if self.hitFrom == "right":
-            self.knockBackMultiplier = (self.hp/100)+1.0
-            self.x-= self.knockback*(self.knockBackMultiplier*0.75)
-            self.y+= self.knockback*self.knockBackMultiplier
+                self.hitFrom = "right"
+        if self.hitFrom == "left" and self.attackHit == True:
+            self.knockBackMultiplier = (self.hp/100.0)+1.0
+            self.x+= self.knockback*(self.knockBackMultiplier*0.75)+1.0
+            self.y-= self.knockback*self.knockBackMultiplier+1.0
+            self.attackHit = False
+        if self.hitFrom == "right" and self.attackHit == True:
+            self.knockBackMultiplier = (self.hp/100.0)+1.0
+            self.x-= self.knockback*(self.knockBackMultiplier*0.75)+1.0
+            self.y-= self.knockback*self.knockBackMultiplier+1.0
+            self.attackHit = False
+        
+        if enemy.attackHit == True:
+            if enemy.x > self.x:
+                enemy.hitFrom = "left"
+            if enemy.x < self.x:
+                enemy.hitFrom = "right"
+        if enemy.hitFrom == "left" and enemy.attackHit == True:
+            enemy.knockBackMultiplier = (enemy.hp/100.0)+1.0
+            enemy.x+= enemy.knockback*(enemy.knockBackMultiplier*0.75)+100.0
+            enemy.y-= enemy.knockback*enemy.knockBackMultiplier+100.0
+            enemy.attackHit = False
+        if enemy.hitFrom == "right" and enemy.attackHit == True:
+            enemy.knockBackMultiplier = (enemy.hp/100)+1.0
+            enemy.x-= enemy.knockback*(enemy.knockBackMultiplier*0.75)+100.0
+            enemy.y-= enemy.knockback*enemy.knockBackMultiplier+100.0
+            enemy.attackHit = False
 
         surface.blit(self.image, (self.x, self.y))
 
@@ -123,12 +151,7 @@ class Player(Entity):
         super().__init__(x,y,chosenCharacter.imagePaths[0],2.0,chosenCharacter)
         self.direction = False # facing right
         self.chosenCharacter = chosenCharacter
-        self.knockbackMultiplier = self.hp/2
-        if self.attackHit == True:
-            pass
-            #knockback code here
 
-    
 class Enemy(Entity):
     def __init__(self,x,y,chosenCharacter):
         super().__init__(x,y,chosenCharacter.imagePaths[9],2.0,chosenCharacter)
@@ -165,10 +188,9 @@ class Scene:
             
             if character.x < 0 or character.x + character.sizex > resX or character.y < 0 or character.y + character.sizey > resY: # respawn
                 character.x = 640
-                character.y = 100
+                character.y = 300
                 character.gravMultiplier = 0
                 enemy.score += 1
-                time.sleep(3) # wait 3 secs
 
 
             if character.jumping and character.y >= 0:
@@ -199,8 +221,8 @@ class Scene:
                 elif character.x <= self.x2 and character.x + character.sizex >= self.x1+1 and character.y > self.y1-character.sizey+1 and character.y < self.y2:
                     character.x = (self.x1-1)-character.sizex
                     character.movingRight = False
-            
-                    
+
+                     
 class Move:
     def __init__(self,sentFrom):
         self.character = sentFrom
@@ -208,24 +230,8 @@ class Move:
         self.y = self.character.y
         
 class Attack(Move):
-    def __init__(self,sentFrom,enemy,damage):
+    def __init__(self,sentFrom):
         super().__init__(sentFrom)
-        self.hitboxWidth = 100
-        self.hitboxHeight = 200
-        self.direction = True # True = facing Left, False = Right. Computed property with code yet to follow.
-        if self.direction == True:
-            hitbox = [self.x-self.hitboxWidth,self.y+self.hitboxHeight/2,self.y-self.hitboxHeight/2]  
-        elif self.direction == False:
-            hitbox = [self.x+self.hitboxWidth/2,self.y+self.hitboxHeight/2,self.y-self.hitboxHeight/2]
-        if enemy.y>hitbox[2] and enemy.y<hitbox[1]:
-            if self.direction == True:
-                if enemy.x>hitbox[0] and enemy.x<self.x:
-                    enemy.attackHit = True
-                    enemy.hp+=self.damage*(enemy.hp/100,0+1.0)
-            if self.direction == False:
-                if enemy.x<hitbox[0] and enemy.x>self.x:
-                    enemy.attackHit = True
-                    enemy.attackHit +=self.damage*(enemy.hp/100,0+1.0)
 
 class Melee(Attack):
     def __init__(self,sentFrom):
@@ -235,29 +241,19 @@ class Melee(Attack):
         self.damage = 5.0
 
 class Ranged(Attack):
-    def __init__(self,sentFrom,damage):
-        super().__init__(sentFrom,damage)
-    def execute(self,enemy):
+    def __init__(self,sentFrom):
+        super().__init__(sentFrom)
         self.projectileSpeed = 10
         self.projectileX = self.x
         self.projectileY = self.y
         self.projectileSizeX = 10
         self.projectileSizeY = 15
-        self.damage = 10
-        if not self.direction:
-            while self.projectileX < 1280 and not ((self.projectileX+self.projectileSizeX or self.projectileX-self.projectileSizeX) and (self.projectileY+self.projectileSizeY or self.projectileY-self.projectileSizeY) == enemy.x):
-                self.projectileX += self.projectileSpeed
-            if self.projectileX == enemy.x:
-                enemy.attackHit = True  
-                self.projectileX = -100
-                self.projectileY = -100
-        if self.direction:
-            while self.projectileX > 0 and not ((self.projectileX+self.projectileSizeX or self.projectileX-self.projectileSizeX) and (self.projectileY+self.projectileSizeY or self.projectileY-self.projectileSizeY) == enemy.x):
-                self.projectileX -= self.projectileSpeed
-            if self.projectileX == enemy.x:
-                enemy.attackHit = True
-                self.projectileX = -100
-                self.projectileY = -100
+        self.damage = 10.0
+        
+
+class Ult(Attack):
+    def __init__(self,sentFrom):
+        super().__init__(sentFrom)
 
 class Support(Move):
     def __init__(self):
@@ -275,34 +271,135 @@ class Punch(Melee):
         self.damage = damage
         self.surface = surface
         a = 'a'; self.照片 = pygame.image.load(f"assets\{a}ttacks\Mario\Mario_punch.png")
+        self.sizex = self.照片.get_size()[0]
+        self.sizey = self.照片.get_size()[1]
     def execute(self,sentFrom,enemy):
         self.enemy = enemy
         self.character = sentFrom
-        self.surface.blit(self.照片,(self.character.x + self.character.sizex,self.character.y + self.character.sizey/2-(self.照片.get_size()[1])/2)) # publish the image in front of player and at the center
+
+        self.x = self.照片.get_rect().x
+        self.y = self.照片.get_rect().y
+        self.hitboxWidth = 100
+        self.hitboxHeight = 200
+        if enemy.y>self.character.y-self.hitboxHeight and enemy.y<self.character.y+self.hitboxHeight:
+            if self.character.direction == True:
+                if enemy.x>self.character.x-self.hitboxWidth and enemy.x<self.character.x:
+                    enemy.attackHit = True  
+                    enemy.hp+=self.damage*(enemy.hp/100+1.0)
+                    print(enemy.attackHit)
+            if self.character.direction == False:
+                if enemy.x<self.character.x+self.hitboxWidth and enemy.x>self.character.x:
+                    enemy.attackHit = True
+                    enemy.hp +=self.damage*(enemy.hp/100+1.0)
+                    print(enemy.attackHit)
+
+        if self.character.direction == False: # Facing right
+            self.surface.blit(self.照片,(self.character.x + self.character.sizex,self.character.y + self.character.sizey/2-(self.sizey/2))) # publish the image in front of player and at the center
+        else:
+            flipped = pygame.transform.flip(self.照片,True,False)
+            self.surface.blit(flipped,(self.character.x - self.sizex,self.character.y + self.character.sizey/2-(self.sizey/2)))
+        
+        pygame.draw.rect(self.surface,'red',((self.x-self.hitboxWidth),(self.y-self.hitboxHeight),(self.x),(self.y+self.hitboxHeight)),3)
+        print(enemy.attackHit)
+        return self.damage
+        
     
 class Fireball(Ranged): 
     def __init__(self,surface,damage):
         self.damage = damage
         self.surface = surface
         a = 'a'; self.照片 = pygame.image.load(f"assets\{a}ttacks\Mario\Mario_fireball.png")
+
+#taco moment
+    def execute(self,sentFrom,enemy):     
+        super().__init__(sentFrom)   
+        self.enemy = enemy
+        self.character = sentFrom
+        self.projectileSizeX = 100
+        self.projectileSizeY = 100
+        self.projectileSpeed = 10
+        self.projectileX
+        self.projectileY
+        if enemy.y>self.projectileY-self.projectileSizeY and enemy.y<self.projectileY+self.projectileSizeY:
+            if self.character.direction == True:
+                if enemy.x>self.projectileX-self.projectileSizeX and enemy.x<self.projectileX:
+                    enemy.attackHit = True  
+                    enemy.hp+=self.damage*(enemy.hp/100+1.0)
+                    print(enemy.attackHit)
+            if self.character.direction == False:
+                if enemy.x<self.projectileX+self.projectileSizeX and enemy.x>self.projectileX:
+                    enemy.attackHit = True
+                    enemy.hp +=self.damage*(enemy.hp/100+1.0)
+                    print(enemy.attackHit)
+        if self.character.direction == True:
+            while self.projectileSizeX>0:
+                self.projectileX-=self.projectileSpeed
+            self.projectileSizeX=-100
+            self.projectileSizeY=-100
+        if self.character.direction == False:
+            while self.projectileSizeX<1280:
+                self.projectileX-=self.projectileSpeed
+            self.projectileSizeX=-100
+            self.projectileSizeY=-100
+
+        
+
+        self.surface.blit(self.照片,(self.projectileX,self.projectileY)) # zhao pian W
+        return self.damage
+
+
+class Knives(Ranged): 
+    def __init__(self,surface,damage):
+        self.damage = damage
+        self.surface = surface
+        a = 'a'; self.照片 = pygame.image.load(f"assets\{a}ttacks\Mario\Mario_fireball.png") #update to fit image
 #taco moment
     def execute(self,sentFrom,enemy):
         self.enemy = enemy
         self.character = sentFrom
         self.surface.blit(self.照片,(self.projectileX,self.projectileY)) # zhao pian W
 
-
 class Shield(Defense):
     def __init__(self,surface):
         self.hp = 50
-        self.isActive = False # defense unactivated by default, only activated when button is pressed.
         self.surface = surface
 
     def execute(self,sentFrom):
         self.character = sentFrom
         pygame.draw.circle(self.surface,'white',(self.character.x+(self.character.sizex/2),self.character.y+(self.character.sizey/2)),50,5)
 
+class Nuke(Ult):
+    def __init__(self,damage,attackHit,enemy):
+        self.x = self.character.x
+        self.y = self.character.y
+        self.damage = 100
+        self.attackHit = True
+        enemy.attackHit = True
 
+class Vent(Ult):
+    def __init__(self,surface):
+        self.tick = 0
+        self.isActive = True
+        self.surface = surface
+        self.saveImages = True        
+
+    def execute(self,sentFrom):
+        if self.saveImages:
+            self.tempCharImages = sentFrom.chosenCharacter.images
+        self.images = []
+        v='v';image = pygame.image.load(f"assets\characters\AmongUs\{v}ent.jpg")
+        for i in range(9):
+            self.images.append(image)
+        sentFrom.chosenCharacter.images = self.images
+
+        if self.tick < 10*60: # 10 seconds * 60 frames per second
+            self.tick += 1
+            print(self.tick)
+        if self.tick == 600:
+            self.isActive = False
+
+
+# Character class (not entity!)
 class Character:
     def __init__(self,imagePaths=[str],moves=[]):
         self.imagePaths = imagePaths
@@ -318,6 +415,8 @@ class Character:
         self.melee = []
         self.ranged = []
         self.support = []
+        self.ult = []
+
         for move in moves: # categorizing the given moves
             if isinstance(move,Melee):
                 self.melee.append(move)
@@ -325,5 +424,7 @@ class Character:
                 self.ranged.append(move)
             elif isinstance(move,Support): # else not used to be safe
                 self.support.append(move)
+            elif isinstance(move,Ult): # else not used to be safe
+                self.ult.append(move)
 
-        self.moves = {'melee':self.melee,'ranged':self.ranged,'support':self.support} # dictionary of moves (syntax is key: value)
+        self.moves = {'melee':self.melee,'ranged':self.ranged,'support':self.support,'ult':self.ult} # dictionary of moves (syntax is key: value)
