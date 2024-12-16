@@ -7,10 +7,13 @@ To access the functions here in another file, use 'import functions'.
 - Joza, Amie, Jayden: Intro to Programming Fall 2024
 '''
 
-def quitCheck(event,running):
+def quitCheck(event):
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+            pygame.quit()
+    
     if event.type == pygame.QUIT:
-        running = False
-    return running
+        pygame.quit()
 
 def moveCheck(event,player,player2):
     # Reset some important values
