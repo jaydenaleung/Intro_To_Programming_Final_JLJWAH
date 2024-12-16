@@ -22,9 +22,11 @@ icon = pygame.image.load("assets\icon.jpg")
 pygame.display.set_caption(title)
 pygame.display.set_icon(icon)
 
-# Homepage
+# Homepage and End screen
 b = 'b'; original_homepage = pygame.image.load(f"assets\{b}ackgrounds\homepage.jpeg")
 homepage = pygame.transform.scale(original_homepage,(1280,720))
+original_end_screen = pygame.image.load(f"assets\{b}ackgrounds\end_screen.jpg")
+end_screen = pygame.transform.scale(original_end_screen, (1280,720))
 
 # Music
 pygame.mixer.music.load("assets\music\Lifelight.mp3")
@@ -100,6 +102,7 @@ characters = [mario,amogus] # more to come
 # Player Nametags and initializing fonts
 n='n';font = pygame.font.Font(f"assets\{n}ametag_font.ttf", 20)
 big_font = pygame.font.Font(f"assets\{n}ametag_font.ttf", 50)
+blocky = pygame.font.Font(f"assets\{b}locky.ttf", 50)
 
 text = pygame.font.Font("freesansbold.ttf", 60)
 map_text = text.render("CHOOSE MAP", True, "black")
@@ -194,20 +197,15 @@ while home:
         if event.type == pygame.MOUSEBUTTONDOWN:
             choose_map = True
             home = False
-            pygame.mixer.music.stop()
-            pygame.mixer.music.unload()
-            pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
-            pygame.mixer.music.play()
+            
         # Exit game
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
+        functions.quitCheck(event)
 
     pygame.display.flip()
     clock.tick(60)  # limits FPS to 60
 
 while True:
-    #resets the music
+    # music
     pygame.mixer.music.stop()
     pygame.mixer.music.unload()
     pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
@@ -253,9 +251,7 @@ while True:
                 '''
 
             # Exit game
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
+            functions.quitCheck(event)
 
         pygame.display.flip()
         clock.tick(60)  # limits FPS to 60
@@ -337,9 +333,7 @@ while True:
                     '''
                     
         # Exit game
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
+        functions.quitCheck(event)
         
         ## Players
         spawnX1 = selectedScene.spawnX1; spawnY1 = selectedScene.spawnY1; spawnX2 = selectedScene.spawnX2; spawnY2 = selectedScene.spawnY2
@@ -373,8 +367,8 @@ while True:
         screen.blit(P1_lives,(85,690))
 
         # P2
-        P2_stats = big_font.render(str(int(player.hp)), False, "red")
-        P2_lives = font.render("Lives: " + str(3 - player.score), False, "red")
+        P2_stats = big_font.render(str(int(player2.hp)), False, "red")
+        P2_lives = font.render("Lives: " + str(3 - player2.score), False, "red")
         pygame.draw.circle(screen, (50,50,50), (1205,660), 70, 0)
         pygame.draw.circle(screen, "white", (1205,660), 70, 5)
         screen.blit(P2_image,(1160,630))
@@ -387,7 +381,7 @@ while True:
 
         # WATCH FOR EVENTS HERE (CONDITIONALS SECTION)
         for event in pygame.event.get(): # BUG: this loop only runs when there are events, not always.
-            running = functions.quitCheck(event,running)
+            functions.quitCheck(event)
             functions.moveCheck(event,players[0],players[1])
             functions.attackCheck(event,players[0],players[1])
             
@@ -415,26 +409,33 @@ while True:
         clock.tick(60)  # limits FPS to 60
 
     while end:
-        screen.fill("white")
-        winner = big_font.render("WINNER", True, "black", "yellow")
-        boo = big_font.render("BOO", True, "black", "red")
-        sad = font.render("sad", True, "black", "blue")
+        screen.blit(end_screen,(0,0))
+        winner = text.render("#1", True, "Gold", "black")
+        boo = text.render("BOO", True, "White", "black")
+        loser = text.render("#2", True, "Silver","black")
+        gg = blocky.render("GOOD GAME", True, "black")
+        return_to_map = text.render("Play Again", True, "black")
+        quit_game = text.render("Exit", True, "black")
+        screen.blit(return_to_map, (100,700))
+        screen.blit(quit_game, (1100,700))
         
         # shows the winner
-        if player2.score == 3 and player.score < 3: # Player 1 loses
-            screen.blit(pygame.image.load(P2.imagePaths[0]),(515,210))
-            screen.blit(P1_image,(900,200))
-            screen.blit(winner,(600,360))
-            screen.blit(sad,(880,320))
-        if player.score == 3 and player2.score < 3: # Player 2 loses
-            screen.blit(pygame.image.load(P1.imagePaths[0]),(515,210))
-            screen.blit(P2_image,(900,200))
-            screen.blit(winner,(600,360))
-            screen.blit(sad,(880,220))
-        if player.score == 3 and player2.score == 3: # Both lose
-            screen.blit(P1_image,(600,360))
-            screen.blit(P2_image,(680,360))
-            screen.blit(boo,(640,360))
+        if player2.score == 3 and player.score < 3: # Player 2 wins, Player 1 loses
+            screen.blit(pygame.image.load(P2.imagePaths[0]),(515,385))
+            screen.blit(P1_image,(920,430))
+            screen.blit(winner,(505,375))
+            screen.blit(loser,(880,380))
+            screen.blit(gg,(500,70))
+        if player.score == 3 and player2.score < 3: # Player 1 wins, Player 2 loses
+            screen.blit(pygame.image.load(P1.imagePaths[0]),(515,385))
+            screen.blit(P2_image,(920,430))
+            screen.blit(winner,(505,375))
+            screen.blit(loser,(880,380))
+            screen.blit(gg,(500,70))
+        if player.score == 3 and player2.score == 3: # Draw
+            screen.blit(P1_image,(500,360))
+            screen.blit(P2_image,(740,360))
+            screen.blit(boo,(620,340))
         
         # Quit game or Play again
         for event in pygame.event.get():
@@ -446,10 +447,9 @@ while True:
                 if mouse_x in range(600,1280):# and mouse_y in range(360):
                     choose_map = True
                     end = False
+                    
             # Exit game
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
+            functions.quitCheck(event)
 
         # UPDATE SCREEN
         pygame.display.flip()
