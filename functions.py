@@ -67,7 +67,7 @@ def attackCheck(event,player,player2):
         for move in movesP:
             if move == 'melee':
                 if event.key == pygame.K_x:
-                    player.move2Activated = not player.move1Activated
+                    player.move2Activated = not player.move2Activated
                     player.move2 = 'melee'
             elif move == 'ranged':
                 if event.key == pygame.K_c:
@@ -75,15 +75,15 @@ def attackCheck(event,player,player2):
                     player.move3 = 'ranged'
             elif move == 'support': # more moves to come
                 if event.key == pygame.K_z:
-                    player.move1Activated = not player.move1Activated
+                    player.move1Activated = True
                     player.move1 = 'support'
             elif move == 'ult':
-                if event.key==pygame.K_v:
-                    player.move4Activated = not player.move1Activated
+                if event.key==pygame.K_v and player.ultUse:
+                    player.move4Activated = True
                     player.move4 = 'ult'
-            elif move == 'nuke':
-                if event.key==pygame.K_1 and event.key==pygame.K_2 and event.key==pygame.K_3:
-                    player.nuke = True
+                    player.doSaveHP = True
+            else:
+                player.move1Activated = False
 
         movesE = player2.chosenCharacter.moves
         for move in movesE:
@@ -97,9 +97,12 @@ def attackCheck(event,player,player2):
                     player2.move3 = 'ranged'
             elif move == 'support': # more moves to come
                 if event.key == pygame.K_n:
-                    player2.move1Activated = not player2.move1Activated
+                    player2.move1Activated = True
                     player2.move1 = 'support'
             elif move == 'ult':
-                if event.key==pygame.K_PERIOD:
-                    player2.move4Activated = not player.move1Activated
+                if event.key==pygame.K_PERIOD and player2.ultUse:
+                    player2.move4Activated = not player2.move4Activated
                     player2.move4 = 'ult'
+                    player2.doSaveHP = True
+            else:
+                player.move1Activated = False
