@@ -31,13 +31,8 @@ pygame.mixer.music.load("assets\music\Lifelight.mp3")
 pygame.mixer.music.play()
 
 # Music
-#pygame.mixer.music.load("assets\music\Lifelight.mp3")
-#pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
-#pygame.mixer.music.load("assets\music\Sky_Fortress.mp3")
-#pygame.mixer.music.load("assets\music\Diamond_Eyes.mp3")
-#pygame.mixer.music.load("assets\music\Pokemon.mp3")
-#pygame.mixer.music.load("assets\music\Super_Mario_Bros.mp3")
-
+pygame.mixer.music.load("assets\music\Lifelight.mp3")
+pygame.mixer.music.play()
 
 # Setup
 background = "white"
@@ -69,7 +64,7 @@ mario = classes.Character(
     [classes.Shield(screen),
      classes.Punch(screen,5),
      classes.Fireball(screen,10),
-     classes.Vent(screen)]
+     classes.Nuke(screen,100.0)]
 )
 
 amogus = classes.Character(
@@ -102,9 +97,15 @@ amogus = classes.Character(
 
 characters = [mario,amogus] # more to come
 
-# Player Nametags
+# Player Nametags and initializing fonts
 n='n';font = pygame.font.Font(f"assets\{n}ametag_font.ttf", 20)
-nametag_P1 = font.render("P1", False, "white", "black") #keep the space
+big_font = pygame.font.Font(f"assets\{n}ametag_font.ttf", 50)
+
+text = pygame.font.Font("freesansbold.ttf", 60)
+map_text = text.render("CHOOSE MAP", True, "black")
+selection_text = text.render("CHOOSE YOUR CHARACTER", True, "black")
+
+nametag_P1 = font.render("P1", False, "white", "black")
 nametag_P2 = font.render("P2", False, "white", "black")
 
 # CLASS OBJECTS
@@ -146,16 +147,18 @@ barrierM1_4 = fountain.Barrier(246,500,1039,533)
 barrierM2_4 = fountain.Barrier(229,540,1037,713)
 luigi.barriers = [barrierT_4,barrierL_4,barrierR_4,barrierM1_4,barrierM2_4]
 
-scenes = [default,finalDest,fountain,luigi]
-selectedScene = scenes[1]
+b='b'; 中国山 = classes.Scene(f"assets\{b}ackgrounds\luigi_mansion.jpg")
+中国山.spawnX1 = 300; 中国山.spawnY1 = 459; 中国山.spawnX2 = 950; 中国山.spawnY2 = 459
+barrierTR_5 = 中国山.Barrier(1020,155,1220,205)
+barrierTL_5 = 中国山.Barrier(50,155,250,205)
+barrierMR_5 = 中国山.Barrier(730,280,910,320)
+barrierML_5 = 中国山.Barrier(390,280,570,270)
+barrierM_5 = 中国山.Barrier(340,490,940,590)
+中国山.barriers = [barrierTR_5,barrierTL_5,barrierMR_5,barrierML_5,barrierM_5]
 
-'''
-if selectedScene == scenes[4]:
-    pygame.mixer.music.stop()
-    pygame.mixer.music.unload()
-    pygame.mixer.music.load("assets\music\Pokemon.mp3")
-    pygame.mixer.music.play()
-'''
+
+scenes = [default,finalDest,fountain,luigi,中国山]
+
 if 脑子 == "smart":
     脑子 = "Found"
 
@@ -163,11 +166,24 @@ home = True # Home screen
 running = False # Main game
 choose_map = False # Map selection
 selection = False # Character selection
+end = False # End screen
 
 times_clicked = 0 # counts times the mouse was clicked for character selection
 P1 = characters[0]
 P2 = characters[1]
 
+#changing map size for preview
+b = 'b'; f = 'f'
+original_map0 = pygame.image.load(f"assets\{b}ackgrounds\default_battlefield.png")
+original_map1 = pygame.image.load(f"assets\{b}ackgrounds\{f}inal_destination.jpg")
+original_map2 = pygame.image.load(f"assets\{b}ackgrounds\{f}ountain_of_dreams.jpg")
+original_map3 = pygame.image.load(f"assets\{b}ackgrounds\luigi_mansion.jpg")
+original_map4 = pygame.image.load(f"assets\{b}ackgrounds\chinese_mountains.jpeg")
+map0 = pygame.transform.scale(original_map0,(256,144))
+map1 = pygame.transform.scale(original_map1,(256,144))
+map2 = pygame.transform.scale(original_map2,(256,144))
+map3 = pygame.transform.scale(original_map3,(256,144))
+map4 = pygame.transform.scale(original_map4,(256,144))
 
 while home:
     # Load Homepage
@@ -176,110 +192,265 @@ while home:
     # Watch for events
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
-            selection = True
+            choose_map = True
             home = False
             pygame.mixer.music.stop()
             pygame.mixer.music.unload()
             pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
             pygame.mixer.music.play()
-    
+        # Exit game
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+
     pygame.display.flip()
     clock.tick(60)  # limits FPS to 60
 
+while True:
+    #resets the music
+    pygame.mixer.music.stop()
+    pygame.mixer.music.unload()
+    pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
+    pygame.mixer.music.play()
 
-while selection:
-    # Character Select screen
-    screen.fill("red")
+    while choose_map: # Choose the map
+        screen.fill("gray")
+        screen.blit(map_text,(420,330))
 
-    #text("CHOOSE YOUR CHARACTER",640,100)
-    ID1 = pygame.image.load("assets\holder.jpeg")
-    ID2 = pygame.image.load("assets\characters\AmongUs\Amogus_ID.png")
-    ID3 = pygame.image.load("assets\holder.jpeg")
-    screen.blit(ID1,(150,100))
-    screen.blit(ID2,(500,100))
-    screen.blit(ID3,(850,100))
+        # Loads maps
+        screen.blit(map0,(150,100))
+        screen.blit(map1,(500,100))
+        screen.blit(map2,(850,100))
+        screen.blit(map3,(325,450))
+        screen.blit(map4,(675,450))
 
-    for event in pygame.event.get():
-        mouse_x, mouse_y = pygame.mouse.get_pos()
+        for event in pygame.event.get(): # Respond to events
+            mouse_x, mouse_y = pygame.mouse.get_pos() # Sets mouse coords
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if mouse_x in range(150,300) and mouse_y in range(100,350):
-                if times_clicked == 0:
-                    P1 = characters[0]
-                else:
-                    P2 = characters[0]
-                times_clicked+=1
-            if mouse_x in range(500,750) and mouse_y in range(100,350):
-                if times_clicked == 0:
-                    P1 = characters[1]
-                else:
-                    P2 = characters[1]
-                times_clicked+=1
-            if mouse_x in range(850,1100) and mouse_y in range(100,350):
-                times_clicked+=1
+            # If you click on a map, that map will be the map and the screen will switch to character selection
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if mouse_x in range(150,416) and mouse_y in range(100,244):
+                    selectedScene = scenes[0]
+                    selection = True
+                    choose_map = False
+                if mouse_x in range(500,766) and mouse_y in range(100,244):
+                    selectedScene = scenes[1]
+                    selection = True
+                    choose_map = False
+                if mouse_x in range(850,1116) and mouse_y in range(100,244):
+                    selectedScene = scenes[2]
+                    selection = True
+                    choose_map = False
+                if mouse_x in range(325,591) and mouse_y in range(450,594):
+                    selectedScene = scenes[3]
+                    selection = True
+                    choose_map = False
+                '''
+                if mouse_x in range(675,591) and mouse_y in range(450,594):
+                    selectedScene = scenes[4]
+                    selection = True
+                    choose_map = False
+                '''
+
+            # Exit game
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+
+        pygame.display.flip()
+        clock.tick(60)  # limits FPS to 60
+    
+    times_clicked = 0 # counts times the mouse was clicked for character selection
+
+    while selection:
+        # Character Select screen
+        screen.fill("red")
+        screen.blit(selection_text,(220,390))
+
+        ID1 = pygame.image.load("assets\holder.jpeg")#assets/characters/Mario/Mario_ID.png
+        ID2 = pygame.image.load("assets\characters\AmongUs\Amogus_ID.png")
+        screen.blit(ID1,(265,100))
+        screen.blit(ID2,(765,100))
+
+        # Tells the players (you) which player is picking the character
+        if times_clicked == 0:
+            screen.blit(nametag_P1, (mouse_x+10,mouse_y+10))
+        else:
+            screen.blit(nametag_P2, (mouse_x+10,mouse_y+10))
+
+        # Choose the character here
+        for event in pygame.event.get():
+            mouse_x, mouse_y = pygame.mouse.get_pos()
             
-            # Goes to game after selecting characters
-            if times_clicked == 2:
-                running = True
-                selection = False
-                #music
-                if selectedScene == scenes[0]:
-                    pygame.mixer.music.stop()
-                    pygame.mixer.music.unload()
-                    pygame.mixer.music.load("assets\music\Poems_of_a_Machine.mp3")
-                    pygame.mixer.music.play()
-                if selectedScene == scenes[1]:
-                    pygame.mixer.music.stop()
-                    pygame.mixer.music.unload()
-                    pygame.mixer.music.load("assets\music\Sky_Fortress.mp3")
-                    pygame.mixer.music.play()
-                if selectedScene == scenes[2]:
-                    pygame.mixer.music.stop()
-                    pygame.mixer.music.unload()
-                    pygame.mixer.music.load("assets\music\Diamond_Eyes.mp3")
-                    pygame.mixer.music.play()
-                if selectedScene == scenes[3]:
-                    pygame.mixer.music.stop()
-                    pygame.mixer.music.unload()
-                    pygame.mixer.music.load("assets\music\Super_Mario_Bros.mp3")
-                    pygame.mixer.music.play()
-    
-    ## Players
-    spawnX1 = selectedScene.spawnX1; spawnY1 = selectedScene.spawnY1; spawnX2 = selectedScene.spawnX2; spawnY2 = selectedScene.spawnY2
-    player = classes.Player(spawnX1,spawnY1,P1)
-    player2 = classes.Player(spawnX2,spawnY2,P2)
-    players = [player,player2]
-    player.direction = False;player2.direction = True # set default direction
+            #If you click a character, that will set it as P1 or P2 based on times_clicked
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if mouse_x in range(265,515) and mouse_y in range(100,350):
+                    if times_clicked == 0:
+                        P1 = characters[0]
+                    else:
+                        P2 = characters[0]
+                    times_clicked+=1
+                if mouse_x in range(765,1015) and mouse_y in range(100,350):
+                    if times_clicked == 0:
+                        P1 = characters[1]
+                    else:
+                        P2 = characters[1]
+                    times_clicked+=1
+                
+                # Sets P1 and P2 images for later
+                P1_image_og = pygame.image.load(P1.imagePaths[0])
+                P1_image = pygame.transform.scale(P1_image_og, (50,60))
+                P2_image_og = pygame.image.load(P2.imagePaths[0])
+                P2_image = pygame.transform.scale(P2_image_og, (50,60))
 
-    pygame.display.flip()
-    clock.tick(60)  # limits FPS to 60
+                # Goes to game after selecting characters
+                if times_clicked == 2:
+                    running = True
+                    selection = False
+                    # Music based on which background was chosen earlier
+                    if selectedScene == scenes[0]:
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.unload()
+                        pygame.mixer.music.load("assets\music\Pokemon.mp3")
+                        pygame.mixer.music.play()
+                    if selectedScene == scenes[1]:
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.unload()
+                        pygame.mixer.music.load("assets\music\Sky_Fortress.mp3")
+                        pygame.mixer.music.play()
+                    if selectedScene == scenes[2]:
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.unload()
+                        pygame.mixer.music.load("assets\music\Diamond_Eyes.mp3")
+                        pygame.mixer.music.play()
+                    if selectedScene == scenes[3]:
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.unload()
+                        pygame.mixer.music.load("assets\music\Super_Mario_Bros.mp3")
+                        pygame.mixer.music.play()
+                    '''
+                    if selectedScene == scenes[4]:
+                        pygame.mixer.music.stop()
+                        pygame.mixer.music.unload()
+                        pygame.mixer.music.load("assets\music\Pokemon.mp3")
+                        pygame.mixer.music.play()
+                    '''
+                    
+        # Exit game
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+        
+        ## Players
+        spawnX1 = selectedScene.spawnX1; spawnY1 = selectedScene.spawnY1; spawnX2 = selectedScene.spawnX2; spawnY2 = selectedScene.spawnY2
+        player = classes.Player(spawnX1,spawnY1,P1)
+        player2 = classes.Player(spawnX2,spawnY2,P2)
+        players = [player,player2]
+        player.direction = False;player2.direction = True # set default direction
+        pygame.display.flip()
+        clock.tick(60)  # limits FPS to 60
+
+    #resets player scores
+    player.score = 0
+    player.hp = 0
+    player2.score = 0
+    player2.hp = 0
 
 
-while running:
-    # SETUP
-    screen.fill(background)
-    selectedScene.update(screen)
+    while running:
+        # SETUP
+        screen.fill(background)
+        selectedScene.update(screen)
 
-    # Nametag
-    screen.blit(nametag_P1, (player.x + 7, player.y - 22))
-    screen.blit(nametag_P2, (player2.x + 7, player2.y - 22))
+        # Player statistics
+        # P1
+        P1_stats = big_font.render(str(int(player.hp)), False, "red")
+        P1_lives = font.render("Lives: " + str(3 - player2.score), False, "red")
+        pygame.draw.circle(screen, (50,50,50), (100,660), 70, 0)
+        pygame.draw.circle(screen, "white", (100,660), 70, 5)
+        screen.blit(P1_image,(55,630))
+        screen.blit(P1_stats,(115,640))
+        screen.blit(P1_lives,(85,690))
 
-    # WATCH FOR EVENTS HERE (CONDITIONALS SECTION)
-    for event in pygame.event.get(): # BUG: this loop only runs when there are events, not always.
-        running = functions.quitCheck(event,running)
-        functions.moveCheck(event,players[0],players[1])
-        functions.attackCheck(event,players[0],players[1])
-    
-    for character in players:
-        for barrier in selectedScene.barriers:
-            barrier.solidify(screen,selectedScene,character,players)
+        # P2
+        P2_stats = big_font.render(str(int(player.hp)), False, "red")
+        P2_lives = font.render("Lives: " + str(3 - player.score), False, "red")
+        pygame.draw.circle(screen, (50,50,50), (1205,660), 70, 0)
+        pygame.draw.circle(screen, "white", (1205,660), 70, 5)
+        screen.blit(P2_image,(1160,630))
+        screen.blit(P2_stats,(1220,640))
+        screen.blit(P2_lives,(1190,690))
 
+        # Nametag
+        screen.blit(nametag_P1, (player.x + 7, player.y - 22))
+        screen.blit(nametag_P2, (player2.x + 7, player2.y - 22))
 
-    # RENDER GAME OBJECTS HERE
-        character.update(screen,character,players)
+        # WATCH FOR EVENTS HERE (CONDITIONALS SECTION)
+        for event in pygame.event.get(): # BUG: this loop only runs when there are events, not always.
+            running = functions.quitCheck(event,running)
+            functions.moveCheck(event,players[0],players[1])
+            functions.attackCheck(event,players[0],players[1])
+            
+            # Exit game
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+        
+        for character in players:
+            for barrier in selectedScene.barriers:
+                barrier.solidify(screen,selectedScene,character,players)
 
-    # UPDATE SCREEN
-    pygame.display.flip()
-    clock.tick(60)  # limits FPS to 60
+        # RENDER GAME OBJECTS HERE
+            character.update(screen,character,players)
 
-pygame.quit()
+        # If someone dies goes to end screen
+        if player.score == 1 or player2.score == 3:
+            screen.blit(pygame.image.load("assets\holder.jpeg"), (640,360))
+            end = True
+            running = False
+            pygame.time.wait(3000)
+        
+        # UPDATE SCREEN
+        pygame.display.flip()
+        clock.tick(60)  # limits FPS to 60
+
+    while end:
+        screen.fill("white")
+        winner = big_font.render("WINNER", True, "black", "yellow")
+        boo = big_font.render("BOO", True, "black", "red")
+        sad = font.render("sad", True, "black", "blue")
+        
+        # shows the winner
+        if player2.score == 3 and player.score < 3: # Player 1 loses
+            screen.blit(pygame.image.load(P2.imagePaths[0]),(515,210))
+            screen.blit(P1_image,(900,200))
+            screen.blit(winner,(600,360))
+            screen.blit(sad,(880,320))
+        if player.score == 3 and player2.score < 3: # Player 2 loses
+            screen.blit(pygame.image.load(P1.imagePaths[0]),(515,210))
+            screen.blit(P2_image,(900,200))
+            screen.blit(winner,(600,360))
+            screen.blit(sad,(880,220))
+        if player.score == 3 and player2.score == 3: # Both lose
+            screen.blit(P1_image,(600,360))
+            screen.blit(P2_image,(680,360))
+            screen.blit(boo,(640,360))
+        
+        # Quit game or Play again
+        for event in pygame.event.get():
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if mouse_x in range(600):# and mouse_y in range(100,200): #coord tbd
+                    end = False
+                    pygame.quit()
+                if mouse_x in range(600,1280):# and mouse_y in range(360):
+                    choose_map = True
+                    end = False
+            # Exit game
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+
+        # UPDATE SCREEN
+        pygame.display.flip()
+        clock.tick(60)  # limits FPS to 60
