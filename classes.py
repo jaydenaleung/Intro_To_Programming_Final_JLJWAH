@@ -125,9 +125,12 @@ class Entity:
             else: enemy.chosenCharacter.support[0].hp -= dmg
             self.move2Activated = False
         if self.move3Activated:
+            print("passed")
             dmg = moves[self.move3][0].execute(character,enemy)
+            print("executed")
             if not enemy.move1Activated: self.hp += dmg
             else: enemy.chosenCharacter.support[0].hp -= dmg
+            print("finished")
         if self.move4Activated:
             if moves[self.move4][0].isActive:
                 moves[self.move4][0].execute(character)
@@ -142,7 +145,7 @@ class Entity:
                 self.hitFrom = "right"
         if self.hitFrom == "left" and self.attackHit == True:
             self.knockBackMultiplier = (self.hp/100.0)+1.0
-            self.x+= self.knockback*(self.knockBackMultiplier*0.75)+1.0
+            self.x+= self.knockback*(self.knockBackMultiplier)+1.0
             self.y-= self.knockback*self.knockBackMultiplier+1.0
             self.attackHit = False
         if self.hitFrom == "right" and self.attackHit == True:
@@ -158,13 +161,13 @@ class Entity:
                 enemy.hitFrom = "right"
         if enemy.hitFrom == "left" and enemy.attackHit == True:
             enemy.knockBackMultiplier = (enemy.hp/100.0)+1.0
-            enemy.x+= enemy.knockback*(enemy.knockBackMultiplier*0.75)+100.0
-            enemy.y-= enemy.knockback*enemy.knockBackMultiplier+100.0
+            enemy.x+= enemy.knockback*(enemy.knockBackMultiplier)+1.0
+            enemy.y-= enemy.knockback*enemy.knockBackMultiplier+1.0
             enemy.attackHit = False
         if enemy.hitFrom == "right" and enemy.attackHit == True:
             enemy.knockBackMultiplier = (enemy.hp/100)+1.0
-            enemy.x-= enemy.knockback*(enemy.knockBackMultiplier*0.75)+100.0
-            enemy.y-= enemy.knockback*enemy.knockBackMultiplier+100.0
+            enemy.x-= enemy.knockback*(enemy.knockBackMultiplier)+1.0
+            enemy.y-= enemy.knockback*enemy.knockBackMultiplier+1.0
             enemy.attackHit = False
 
         surface.blit(self.image, (self.x, self.y))
@@ -281,8 +284,8 @@ class Ranged(Attack):
     def __init__(self,sentFrom):
         super().__init__(sentFrom)
         self.projectileSpeed = 10
-        self.projectileX = self.x
-        self.projectileY = self.y
+        self.projectileX = self.character.x
+        self.projectileY = self.character.y
         self.projectileSizeX = 10
         self.projectileSizeY = 15
         self.damage = 10.0
@@ -376,48 +379,58 @@ class Fireball(Ranged):
         self.damage = damage
         self.surface = surface
         a = 'a'; self.照片 = pygame.image.load(f"assets\{a}ttacks\Mario\Mario_fireball.png")
-
+        
 #taco moment
     def execute(self,sentFrom,enemy):     
         super().__init__(sentFrom)   
         self.enemy = enemy
         self.character = sentFrom
-        self.projectileSizeX = 100
-        self.projectileSizeY = 100
-        self.projectileSpeed = 10
-        self.projectileX
-        self.projectileY
+        self.projectileSizeX = 50
+        self.projectileSizeY = 50
+        self.projectileSpeed = 1
+        self.projectileX = self.character.x
+        self.projectileY = self.character.y
         if enemy.y>self.projectileY-self.projectileSizeY and enemy.y<self.projectileY+self.projectileSizeY:
             if self.character.direction == True:
+                print(self.projectileX)
                 if enemy.x>self.projectileX-self.projectileSizeX and enemy.x<self.projectileX:
                     enemy.attackHit = True  
                     enemy.hp+=self.damage*(enemy.hp/100+1.0)
+                    self.projectileX=0
+                    self.projectileY=0
+                    self.projectileSpeed = 0
                     print(enemy.attackHit)
             if self.character.direction == False:
+                print(self.projectileX)
                 if enemy.x<self.projectileX+self.projectileSizeX and enemy.x>self.projectileX:
                     enemy.attackHit = True
                     enemy.hp +=self.damage*(enemy.hp/100+1.0)
+                    self.projectileX=0
+                    self.projectileY=0
+                    self.projectileSpeed = 0
                     print(enemy.attackHit)
         if self.character.direction == True:
-            while self.projectileSizeX>0:
+            if self.projectileX>0:
                 self.projectileX-=self.projectileSpeed
-                print(self.projectileSizeX)
-            self.projectileSizeX=0
-            self.projectileSizeY=0
+                
+            self.projectileX=0
+            self.projectileY=0
+            self.projectileSpeed = 0
         if self.character.direction == False:
-            while self.projectileSizeX<1280:
-                self.projectileX-=self.projectileSpeed
-                print(self.projectileSizeX)
-            self.projectileSizeX=0
-            self.projectileSizeY=0
+            if self.projectileX<1280:
+                self.projectileX+=self.projectileSpeed
+            self.projectileX=0
+            self.projectileY=0
+            self.projectileSpeed = 0
 
         if self.character.direction == False: # Facing right
-            while self.projectileSizeX<1280:
+            if self.projectileX<1280:
                 flipped = pygame.transform.flip(self.照片,True,False)
-                self.surface.blit(flipped,(self.character.x,self.character.y))      
+                self.surface.blit(flipped,(self.character.x+10,self.character.y+5))      
         elif self.character.direction == True:
-            while self.projectileSizeX>0:
-                self.surface.blit(self.照片,(self.character.x,self.character.y)) # publish the image in front of player and at the center
+            if self.projectileX>0:
+                self.surface.blit(self.照片,(self.character.x-10,self.character.y+5)) # publish the image in front of player and at the center
+        
         return self.damage
 
 
@@ -432,38 +445,47 @@ class Knives(Ranged):
         self.character = sentFrom
         self.projectileSizeX = 100
         self.projectileSizeY = 100
-        self.projectileSpeed = 10
-        self.projectileX
-        self.projectileY
+        self.projectileSpeed = 1
+        self.projectileX = self.character.x
+        self.projectileY = self.character.y
         if enemy.y>self.projectileY-self.projectileSizeY and enemy.y<self.projectileY+self.projectileSizeY:
             if self.character.direction == True:
                 if enemy.x>self.projectileX-self.projectileSizeX and enemy.x<self.projectileX:
                     enemy.attackHit = True  
                     enemy.hp+=self.damage*(enemy.hp/100+1.0)
+                    self.projectileX=0
+                    self.projectileY=0
+                    self.projectileSpeed = 0
                     print(enemy.attackHit)
             if self.character.direction == False:
                 if enemy.x<self.projectileX+self.projectileSizeX and enemy.x>self.projectileX:
                     enemy.attackHit = True
                     enemy.hp +=self.damage*(enemy.hp/100+1.0)
+                    self.projectileX=0
+                    self.projectileY=0
+                    self.projectileSpeed = 0
                     print(enemy.attackHit)
         if self.character.direction == True:
-            while self.projectileSizeX>0:
+            while self.projectileX>0:
                 self.projectileX-=self.projectileSpeed
-            self.projectileSizeX=-100
-            self.projectileSizeY=-100
+                print(self.projectileX)
+            self.projectileX=0
+            self.projectileY=0
+            self.projectileSpeed = 0
         if self.character.direction == False:
-            while self.projectileSizeX<1280:
-                self.projectileX-=self.projectileSpeed
-            self.projectileSizeX=-100
-            self.projectileSizeY=-100
-
+            while self.projectileX<1280:
+                self.projectileX+=self.projectileSpeed
+                print(self.projectileX)
+            self.projectileX=0
+            self.projectileY=0
+            self.projectileSpeed = 0
         if self.character.direction == False: # Facing right
-            while self.projectileSizeX<1280:
+            while self.projectileX<1280:
                 flipped = pygame.transform.flip(self.照片,True,False)
-                self.surface.blit(flipped,(self.character.x,self.character.y))      
+                self.surface.blit(flipped,(self.character.x+10,self.character.y+5))      
         elif self.character.direction == True:
-            while self.projectileSizeX>0:
-                self.surface.blit(self.照片,(self.character.x,self.character.y)) # publish the image in front of player and at the center
+            while self.projectileX>0:
+                self.surface.blit(self.照片,(self.character.x-10,self.character.y+5)) # publish the image in front of player and at the center
         return self.damage
 
 class Shield(Defense):
@@ -519,7 +541,7 @@ class Vent(Ult):
 
     def execute(self,sentFrom):
         print("executed")
-        if self.tick < 10*60: # 10 seconds * 60 frames per second = run for only 10 seconds
+        if self.tick < 5*60: # 10 seconds * 60 frames per second = run for only 5 seconds
             self.tick += 1
             print(self.tick)
         if self.tick == 600:
